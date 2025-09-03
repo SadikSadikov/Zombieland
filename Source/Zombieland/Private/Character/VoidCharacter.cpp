@@ -4,6 +4,9 @@
 #include "Character/VoidCharacter.h"
 #include "EnhancedInputSubsystems.h"
 #include "EnhancedInputComponent.h"
+#include "GameFramework/CharacterMovementComponent.h"
+#include "Kismet/GameplayStatics.h"
+#include "Kismet/KismetMathLibrary.h"
 
 void AVoidCharacter::BeginPlay()
 {
@@ -19,6 +22,16 @@ void AVoidCharacter::BeginPlay()
 }
 
 
+AVoidCharacter::AVoidCharacter()
+{
+	GetCharacterMovement()->bOrientRotationToMovement = false;
+	GetCharacterMovement()->bConstrainToPlane = true;
+	GetCharacterMovement()->bSnapToPlaneAtStart = true;
+
+	bUseControllerRotationPitch = false;
+	bUseControllerRotationRoll = false;
+	bUseControllerRotationYaw = false;
+}
 
 void AVoidCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
@@ -28,6 +41,24 @@ void AVoidCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompo
 	{
 		EnhancedInputComponent->BindAction(MoveAction, ETriggerEvent::Triggered, this, &AVoidCharacter::Move);
 	}
+}
+
+void AVoidCharacter::Tick(float DeltaTime)
+{
+	Super::Tick(DeltaTime);
+
+
+	const FRotator ActorRotation = GetActorRotation();
+
+	APlayerController* PlayerController = UGameplayStatics::GetPlayerController(this, 0);
+	FHitResult Hit;
+	PlayerController->GetHitResultUnderCursorByChannel(TraceTypeQuery1, false, Hit);
+
+	FRotator LookAtRotation = UKismetMathLibrary::FindLookAtRotation(GetActorLocation(), Hit.Location);
+
+	FRotator CursorRotation = FMath::RInterpTo(GetActorRotation(), LookAtRotation, DeltaTime, 6.0f);
+	
+	SetActorRotation(FRotator(ActorRotation.Pitch, CursorRotation.Yaw, ActorRotation.Roll));
 }
 
 void AVoidCharacter::Move(const FInputActionValue& Value)
