@@ -6,6 +6,9 @@
 #include "Character/VoidCharacterBase.h"
 #include "VoidCharacter.generated.h"
 
+struct FInputActionValue;
+class UInputAction;
+class UInputMappingContext;
 /**
  * 
  */
@@ -13,5 +16,22 @@ UCLASS()
 class ZOMBIELAND_API AVoidCharacter : public AVoidCharacterBase
 {
 	GENERATED_BODY()
+
+public:
+
+	virtual void SetupPlayerInputComponent(UInputComponent* PlayerInputComponent) override;
+
+protected:
+	virtual void BeginPlay() override;
+
+private:
+
+	UPROPERTY(EditDefaultsOnly, Category = "Input")
+	TObjectPtr<UInputMappingContext> VoidContext;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Input")
+	TObjectPtr<UInputAction> MoveAction;
+
+	void Move(const FInputActionValue& Value);
 	
 };
