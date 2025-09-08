@@ -3,32 +3,57 @@
 
 #include "Component/CombatComponent.h"
 
-// Sets default values for this component's properties
+
 UCombatComponent::UCombatComponent()
 {
-	// Set this component to be initialized when the game starts, and to be ticked every frame.  You can turn these features
-	// off to improve performance if you don't need them.
 	PrimaryComponentTick.bCanEverTick = true;
-
-	// ...
-}
-
-
-// Called when the game starts
-void UCombatComponent::BeginPlay()
-{
-	Super::BeginPlay();
-
-	// ...
 	
 }
 
-
-// Called every frame
-void UCombatComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
+void UCombatComponent::Attack(EAttackType AttackType)
 {
-	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
+	if (EquippedWeapon)
+	{
+		switch (EquippedWeapon->WeaponType)
+		{
+		case EWeaponType::EWT_Unarmed:
+			// TODO:: Make unarmed attack
+			break;
 
-	// ...
+		case EWeaponType::EWT_Sword:
+			// TODO:: Make sword attack
+			break;
+
+		case EWeaponType::EWT_Gun:
+			if (AttackType == EAttackType::EAT_Primary)
+			{
+				
+			}
+			else if (AttackType == EAttackType::EAT_Secondary)
+			{
+				
+			}
+			break;
+			
+		default: ;
+		}
+	}
 }
+
+void UCombatComponent::BeginPlay()
+{
+	Super::BeginPlay();
+	
+	
+}
+
+void UCombatComponent::FireGun()
+{
+	// TODO:: Check if character is Unoccupied(not plying animation something like this) CombatState
+	// Play animation (firing a weapon)
+
+	
+	EquippedWeapon->Attack();
+}
+
 
