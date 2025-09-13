@@ -7,6 +7,7 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "Kismet/KismetMathLibrary.h"
+#include "Player/VoidPlayerController.h"
 
 void AVoidCharacter::BeginPlay()
 {
@@ -19,6 +20,20 @@ void AVoidCharacter::BeginPlay()
 			Subsystem->AddMappingContext(VoidContext, 0);
 		}
 	}
+}
+
+void AVoidCharacter::PollInit()
+{
+	
+	if (VoidPlayerController == nullptr)
+	{
+		/*VoidPlayerController = VoidPlayerController == nullptr ? Cast<AVoidPlayerController>(GetController()) : VoidPlayerController;
+		if (VoidPlayerController)
+		{
+			// HUD Releated thinsgs
+		}*/
+	}
+	
 }
 
 
@@ -43,13 +58,10 @@ void AVoidCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompo
 	}
 }
 
-void AVoidCharacter::Tick(float DeltaTime)
+void AVoidCharacter::CalcActorRotation(float DeltaTime)
 {
-	Super::Tick(DeltaTime);
-
-
 	const FRotator ActorRotation = GetActorRotation();
-
+	
 	APlayerController* PlayerController = UGameplayStatics::GetPlayerController(this, 0);
 	FHitResult Hit;
 	PlayerController->GetHitResultUnderCursorByChannel(TraceTypeQuery1, false, Hit);
@@ -59,6 +71,77 @@ void AVoidCharacter::Tick(float DeltaTime)
 	FRotator CursorRotation = FMath::RInterpTo(GetActorRotation(), LookAtRotation, DeltaTime, 6.0f);
 	
 	SetActorRotation(FRotator(ActorRotation.Pitch, CursorRotation.Yaw, ActorRotation.Roll));
+}
+
+float AVoidCharacter::CalcSpeed()
+{
+	FVector CharVelocity = GetCharacterMovement()->Velocity;
+	CharVelocity.Z = 0;
+	return CharVelocity.Size();
+}
+
+void AVoidCharacter::Tick(float DeltaTime)
+{
+	Super::Tick(DeltaTime);
+
+	CalcActorRotation(DeltaTime);
+
+	float Speed = CalcSpeed();
+
+	if (Speed == 0.f)
+	{
+		
+		FRotator CurrentRotation = FRotator(0.f, GetActorRotation().Yaw, 0.f);
+		/* [180 / -180] */
+		FRotator DeltaRotation = UKismetMathLibrary::NormalizedDeltaRotator(CurrentRotation, StartingRotator);
+		PrevYaw_Rot = Yaw_Rot;
+		Yaw_Rot = DeltaRotation.Yaw;
+	
+		if (TurningInPlace == ETurningInPlace::ETIP_NotTurning)
+		{
+			InterpYaw_Rot = Yaw_Rot;
+		}
+		
+		TurnInPlace(DeltaTime);
+	}
+	else if (Speed > 0.f)
+	{
+		StartingRotator = FRotator(0.f, GetActorRotation().Yaw, 0.f);
+		Yaw_Rot = 0.f;
+		TurningInPlace = ETurningInPlace::ETIP_NotTurning;
+	}
+	
+
+}
+
+void AVoidCharacter::TurnInPlace(float DeltaTime)
+{
+	if (Yaw_Rot > YawThreshold)
+	{
+		TurningInPlace = ETurningInPlace::ETIP_Right;
+		
+	}
+	else if (Yaw_Rot < -YawThreshold)
+	{
+		TurningInPlace = ETurningInPlace::ETIP_Left;
+		
+	}
+
+	// TODO:: If character not stopining to , then not change to idle anim keep in right direction for example
+	if (TurningInPlace != ETurningInPlace::ETIP_NotTurning )
+	{
+		InterpYaw_Rot = FMath::FInterpTo(InterpYaw_Rot, 0.f, DeltaTime, 1.5f);
+		Yaw_Rot = InterpYaw_Rot;
+		
+		
+
+		if (FMath::Abs(Yaw_Rot) < YawMinThreshold)
+		{
+			TurningInPlace = ETurningInPlace::ETIP_NotTurning;
+			StartingRotator = FRotator(0.f, GetActorRotation().Yaw, 0.f);
+		}
+		
+	}
 }
 
 void AVoidCharacter::Move(const FInputActionValue& Value)

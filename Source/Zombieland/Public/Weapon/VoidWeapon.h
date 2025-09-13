@@ -4,7 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
-#include "Weapon.generated.h"
+#include "VoidWeapon.generated.h"
 
 UENUM(BlueprintType)
 enum class EWeaponType  : uint8
@@ -28,17 +28,15 @@ enum class EAttackType  : uint8
 };
 
 UCLASS()
-class ZOMBIELAND_API AWeapon : public AActor
+class ZOMBIELAND_API AVoidWeapon : public AActor
 {
 	GENERATED_BODY()
 	
 public:
 	
-	AWeapon();
+	AVoidWeapon();
 
 	virtual void Attack();
-
-	virtual void OnConstruction(const FTransform& Transform) override;
 
 	UPROPERTY(EditAnywhere, Category = "Properties")
 	EWeaponType WeaponType = EWeaponType::EWT_Unarmed;
@@ -48,19 +46,18 @@ protected:
 	
 	virtual void BeginPlay() override;
 
+	
+
 private:
 
 	UPROPERTY(VisibleAnywhere)
-	TObjectPtr<UStaticMeshComponent> WeaponStaticMesh;
+	TObjectPtr<UStaticMeshComponent> WeaponMesh;
 
-	UPROPERTY(VisibleAnywhere)
-	TObjectPtr<USkeletalMeshComponent> WeaponSkeletalMesh;
+public:
 
-	UPROPERTY(EditAnywhere, Category = "Properties")
-	bool bUseSkeletalMesh = false;
-	
-	UPROPERTY(EditAnywhere, Category = "Properties")
-	TObjectPtr<UAnimationAsset> AttackAnimation;
+	FORCEINLINE UStaticMeshComponent* GetWeaponMesh() { return WeaponMesh; }
+
+
 	
 
 };

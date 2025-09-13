@@ -6,6 +6,8 @@
 #include "GameFramework/Character.h"
 #include "VoidCharacterBase.generated.h"
 
+class UCombatComponent;
+
 UCLASS()
 class ZOMBIELAND_API AVoidCharacterBase : public ACharacter
 {
@@ -15,9 +17,14 @@ public:
 	
 	AVoidCharacterBase();
 
+	virtual  void PostInitializeComponents() override;
+
 protected:
 	
 	virtual void BeginPlay() override;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	UCombatComponent* CombatComp;
 	
 	
 

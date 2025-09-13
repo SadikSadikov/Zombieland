@@ -4,8 +4,10 @@
 
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
-#include "Weapon/Weapon.h"
+#include "Weapon/VoidWeapon.h"
 #include "CombatComponent.generated.h"
+
+class AVoidCharacterBase;
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class ZOMBIELAND_API UCombatComponent : public UActorComponent
@@ -16,6 +18,10 @@ public:
 	
 	UCombatComponent();
 
+	UFUNCTION(BlueprintCallable)
+	void EquipWeapon(AVoidWeapon* WeaponToEquip);
+
+	UFUNCTION(BlueprintCallable)
 	void Attack(EAttackType AttackType);
 
 protected:
@@ -24,14 +30,45 @@ protected:
 
 	void FireGun();
 
+	UPROPERTY()
+	TObjectPtr<AVoidWeapon> EquippedWeapon;
+
+	UPROPERTY()
+	TObjectPtr<AVoidWeapon> SecondaryWeapon;
+	
+
 private:
 
 	UPROPERTY()
-	TObjectPtr<AWeapon> EquippedWeapon;
+	TObjectPtr<AVoidCharacterBase> CharacterOwner;
 
-	UPROPERTY()
-	TObjectPtr<AWeapon> SecondaryWeapon;
+	UPROPERTY(EditDefaultsOnly)
+	TMap<EWeaponType, UAnimMontage*> WeaponMontages;
+
+	UPROPERTY(EditDefaultsOnly)
+	TSubclassOf<AVoidWeapon> DefaultWeaponClass;
+
+	void EquipPrimaryWeapon(AVoidWeapon* WeaponToEquip);
+
+	void EquipSecondaryWeapon(AVoidWeapon* WeaponToEquip);
+
+	void AttachWeaponToRightHand(AActor* WeaponToAttach);
+
+	void PlayAttackMontage(const EWeaponType WeaponType);
+
+	void SpawnDefaultWeapon();
+
 	
+public:
+
+	FORCEINLINE AVoidCharacterBase* GetCharacterOwner() { return CharacterOwner; }
+	FORCEINLINE void SetCharacterOwner(AVoidCharacterBase* InCharacterOwner) { CharacterOwner = InCharacterOwner; }
+
+
 
 		
 };
+
+
+
+
