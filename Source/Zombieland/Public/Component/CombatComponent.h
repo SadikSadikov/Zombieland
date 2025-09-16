@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
+#include "VoidTypes/CombatState.h"
 #include "Weapon/VoidWeapon.h"
 #include "CombatComponent.generated.h"
 
@@ -18,17 +19,49 @@ public:
 	
 	UCombatComponent();
 
+	virtual void TickComponent(float DeltaTime, enum ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
+
 	UFUNCTION(BlueprintCallable)
 	void EquipWeapon(AVoidWeapon* WeaponToEquip);
+
+	/* This function is called in AnimNotify to Spawn a Projectile or Field for Collision */
+	UFUNCTION(BlueprintCallable)
+	void AttackImpact(EAttackType AttackType);
+
+	/* This function is called in AnimNotify to Reload Gun or Recharge Sword */
+	UFUNCTION(BlueprintCallable)
+	void RechargeFinished();
 
 	UFUNCTION(BlueprintCallable)
 	void Attack(EAttackType AttackType);
 
-protected:
+	UFUNCTION(BlueprintCallable)
+	void Recharge();
 	
+
+protected:
+
 	virtual void BeginPlay() override;
 
+	// Attack
+
 	void FireGun();
+
+	bool CanAttack();
+
+	void StartAttackTimer();
+
+	void AttackTimerFinished();
+
+	FTimerHandle AttackTimer;
+
+	// Recharge
+	
+	bool CanRecharge();
+
+	void RechargeEmptyWeapon();
+	
+	//
 
 	UPROPERTY()
 	TObjectPtr<AVoidWeapon> EquippedWeapon;
@@ -43,18 +76,17 @@ private:
 	TObjectPtr<AVoidCharacterBase> CharacterOwner;
 
 	UPROPERTY(EditDefaultsOnly)
-	TMap<EWeaponType, UAnimMontage*> WeaponMontages;
-
-	UPROPERTY(EditDefaultsOnly)
 	TSubclassOf<AVoidWeapon> DefaultWeaponClass;
+
+	FVector HitTarget = FVector::ZeroVector;
+
+	ECombatState CombatState = ECombatState::ECS_Unoccupied;
 
 	void EquipPrimaryWeapon(AVoidWeapon* WeaponToEquip);
 
 	void EquipSecondaryWeapon(AVoidWeapon* WeaponToEquip);
 
 	void AttachWeaponToRightHand(AActor* WeaponToAttach);
-
-	void PlayAttackMontage(const EWeaponType WeaponType);
 
 	void SpawnDefaultWeapon();
 

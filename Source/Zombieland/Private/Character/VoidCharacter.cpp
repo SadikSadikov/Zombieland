@@ -66,6 +66,9 @@ void AVoidCharacter::CalcActorRotation(float DeltaTime)
 	FHitResult Hit;
 	PlayerController->GetHitResultUnderCursorByChannel(TraceTypeQuery1, false, Hit);
 
+	// Setting Target for hit
+	HitTarget = Hit.Location;
+	
 	FRotator LookAtRotation = UKismetMathLibrary::FindLookAtRotation(GetActorLocation(), Hit.Location);
 
 	FRotator CursorRotation = FMath::RInterpTo(GetActorRotation(), LookAtRotation, DeltaTime, 6.0f);
@@ -126,8 +129,7 @@ void AVoidCharacter::TurnInPlace(float DeltaTime)
 		TurningInPlace = ETurningInPlace::ETIP_Left;
 		
 	}
-
-	// TODO:: If character not stopining to , then not change to idle anim keep in right direction for example
+	
 	if (TurningInPlace != ETurningInPlace::ETIP_NotTurning )
 	{
 		InterpYaw_Rot = FMath::FInterpTo(InterpYaw_Rot, 0.f, DeltaTime, 1.5f);

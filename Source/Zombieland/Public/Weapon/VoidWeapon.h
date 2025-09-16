@@ -4,18 +4,10 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
+#include "VoidTypes/WeaponTypes.h"
 #include "VoidWeapon.generated.h"
 
-UENUM(BlueprintType)
-enum class EWeaponType  : uint8
-{
-	EWT_Unarmed UMETA(DisplayName = "Unarmed"),
-	EWT_Sword UMETA(DisplayName = "Sword"),
-	EWT_Gun UMETA(DisplayName = "Gun"),
 
-	EWT_Max UMETA(DisplayName = "DeafultMax")
-	
-};
 
 UENUM(BlueprintType)
 enum class EAttackType  : uint8
@@ -36,17 +28,26 @@ public:
 	
 	AVoidWeapon();
 
-	virtual void Attack();
+	virtual void Attack(const FVector& TraceHitTarget);
 
-	UPROPERTY(EditAnywhere, Category = "Properties")
-	EWeaponType WeaponType = EWeaponType::EWT_Unarmed;
+	virtual void Recharge();
+	
+	virtual bool CanAttack();
+
+	virtual bool CanRecharge();
+
+	
 
 
 protected:
 	
 	virtual void BeginPlay() override;
 
-	
+	UPROPERTY(EditAnywhere, Category = "Combat")
+	float AttackDelay = 0.5f;
+
+	UPROPERTY(EditAnywhere, Category = "Combat")
+	EWeaponType WeaponType = EWeaponType::EWT_Unarmed;
 
 private:
 
@@ -55,7 +56,10 @@ private:
 
 public:
 
+	FORCEINLINE EWeaponType GetWeaponType() const { return WeaponType; }
 	FORCEINLINE UStaticMeshComponent* GetWeaponMesh() { return WeaponMesh; }
+	FORCEINLINE float GetAttackDelay() const { return AttackDelay; }
+
 
 
 	

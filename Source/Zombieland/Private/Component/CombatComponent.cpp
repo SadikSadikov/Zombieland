@@ -13,6 +13,21 @@ UCombatComponent::UCombatComponent()
 	
 }
 
+void UCombatComponent::BeginPlay()
+{
+	Super::BeginPlay();
+
+	SpawnDefaultWeapon();
+	
+	
+}
+
+void UCombatComponent::TickComponent(float DeltaTime, enum ELevelTick TickType,
+	FActorComponentTickFunction* ThisTickFunction)
+{
+	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
+}
+
 void UCombatComponent::EquipWeapon(AVoidWeapon* WeaponToEquip)
 {
 	if (WeaponToEquip == nullptr) return;
@@ -31,56 +46,99 @@ void UCombatComponent::EquipWeapon(AVoidWeapon* WeaponToEquip)
 void UCombatComponent::Attack(EAttackType AttackType)
 {
 	
-	if (EquippedWeapon)
+	if (CharacterOwner && CanAttack())
 	{
-		PlayAttackMontage(EquippedWeapon->WeaponType);
+		CombatState = ECombatState::ECS_Attacking;
+		CharacterOwner->PlayAttackMontage(EquippedWeapon->GetWeaponType());
 		
-		switch (EquippedWeapon->WeaponType)
-		{
-		case EWeaponType::EWT_Unarmed:
-			// TODO:: Make unarmed attack
-			break;
-
-		case EWeaponType::EWT_Sword:
-			// TODO:: Make sword attack
-			break;
-
-		case EWeaponType::EWT_Gun:
-
-			FireGun();
-
-			
-			if (AttackType == EAttackType::EAT_Primary)
-			{
-				
-			}
-			else if (AttackType == EAttackType::EAT_Secondary)
-			{
-				
-			}
-			break;
-			
-		default: ;
-		}
 	}
 }
 
-void UCombatComponent::BeginPlay()
+bool UCombatComponent::CanAttack()
 {
-	Super::BeginPlay();
+	if (EquippedWeapon == nullptr) return false;
 
-	SpawnDefaultWeapon();
-	
-	
+	return EquippedWeapon->CanAttack() && CombatState == ECombatState::ECS_Unoccupied;
+}
+
+void UCombatComponent::AttackImpact(EAttackType AttackType)
+{
+	switch (EquippedWeapon->GetWeaponType())
+	{
+	case EWeaponType::EWT_Unarmed:
+		// TODO:: Make unarmed attack
+		break;
+
+	case EWeaponType::EWT_Sword:
+		// TODO:: Make sword attack
+		break;
+
+	case EWeaponType::EWT_Gun:
+		FireGun();
+		
+		break;
+			
+	default: ;
+	}
+
+	StartAttackTimer();
 }
 
 void UCombatComponent::FireGun()
 {
-	// TODO:: Check if character is Unoccupied(not plying animation something like this) CombatState
-	// Play animation (firing a weapon)
-
 	
-	EquippedWeapon->Attack();
+	EquippedWeapon->Attack(CharacterOwner->GetHitTarget());
+}
+
+void UCombatComponent::StartAttackTimer()
+{
+	if (CharacterOwner == nullptr || EquippedWeapon == nullptr) return;
+
+	CharacterOwner->GetWorldTimerManager().SetTimer(AttackTimer,
+		this,
+		&UCombatComponent::AttackTimerFinished,
+		EquippedWeapon->GetAttackDelay());
+}
+
+void UCombatComponent::RechargeEmptyWeapon()
+{
+	if (EquippedWeapon && !EquippedWeapon->CanAttack())
+	{
+		Recharge();
+	}
+}
+
+void UCombatComponent::AttackTimerFinished()
+{
+	if (EquippedWeapon == nullptr) return;
+	CombatState = ECombatState::ECS_Unoccupied;
+
+	RechargeEmptyWeapon();
+}
+
+
+
+void UCombatComponent::Recharge()
+{
+	if (CanRecharge())
+	{
+		CombatState = ECombatState::ECS_Recharging;
+		CharacterOwner->PlayRechargeMontage();
+	}
+}
+
+void UCombatComponent::RechargeFinished()
+{
+	if (EquippedWeapon)
+	{
+		EquippedWeapon->Recharge();
+	}
+	CombatState = ECombatState::ECS_Unoccupied;
+}
+
+bool UCombatComponent::CanRecharge()
+{
+	return EquippedWeapon && EquippedWeapon->CanRecharge() && CombatState == ECombatState::ECS_Unoccupied;
 }
 
 void UCombatComponent::EquipPrimaryWeapon(AVoidWeapon* WeaponToEquip)
@@ -105,17 +163,6 @@ void UCombatComponent::AttachWeaponToRightHand(AActor* WeaponToAttach)
 	{
 		MeshSocket->AttachActor(WeaponToAttach, CharacterOwner->GetMesh());
 	}
-}
-
-void UCombatComponent::PlayAttackMontage(const EWeaponType WeaponType)
-{
-	if (WeaponMontages.IsEmpty() || !WeaponMontages.Contains(WeaponType)) return;
-
-	if (UAnimInstance* AnimInstance = CharacterOwner->GetMesh()->GetAnimInstance())
-	{
-		AnimInstance->Montage_Play(WeaponMontages[WeaponType]);
-	}
-
 }
 
 void UCombatComponent::SpawnDefaultWeapon()

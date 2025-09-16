@@ -5,18 +5,26 @@
 #include "Engine/StaticMeshSocket.h"
 #include "Weapon/Projectile/VoidProjectile.h"
 
-void AVoidProjectileWeapon::Attack()
-{
-	Super::Attack();
 
-	// TODO:: Check here are we have enough ammo and update HUD
-	
-	
+void AVoidProjectileWeapon::BeginPlay()
+{
+	Super::BeginPlay();
+
+	// Initialize 
+	Ammo = FMath::Clamp(Ammo, 0, MagCapacity);
+}
+
+void AVoidProjectileWeapon::Attack(const FVector& TraceHitTarget)
+{
+	Super::Attack(TraceHitTarget);
 
 	if (const UStaticMeshSocket* MeshSocket = GetWeaponMesh()->GetSocketByName(TipSocketName))
 	{
 		FTransform SocketTransform;
 		MeshSocket->GetSocketTransform(SocketTransform, GetWeaponMesh());
+
+		FVector ToTarget = TraceHitTarget - SocketTransform.GetLocation();
+		FRotator TargetRotation = ToTarget.Rotation();
 		
 		APawn* InstigatorPawn = Cast<APawn>(GetOwner());
 		
@@ -24,7 +32,72 @@ void AVoidProjectileWeapon::Attack()
 		SpawnParameters.Owner = GetOwner();
 		SpawnParameters.Instigator = InstigatorPawn;
 		
-		GetWorld()->SpawnActor<AVoidProjectile>(ProjectileClass, SocketTransform.GetLocation(), SocketTransform.Rotator(), SpawnParameters);
+		GetWorld()->SpawnActor<AVoidProjectile>(ProjectileClass, SocketTransform.GetLocation(), TargetRotation, SpawnParameters);
+		
+		SpendRound();
+
+		GEngine->AddOnScreenDebugMessage(1, 2.f, FColor::Green, FString::Printf(TEXT("Ammo - %d"), Ammo));
 		
 	}
 }
+
+bool AVoidProjectileWeapon::CanAttack()
+{
+	return !IsEmpty();
+}
+
+void AVoidProjectileWeapon::SpendRound()
+{
+	Ammo = FMath::Clamp(Ammo - 1, 0, MagCapacity);
+}
+
+void AVoidProjectileWeapon::AddAmmo(int32 Amount)
+{
+	Ammo = FMath::Clamp(Ammo + Amount, 0, MagCapacity);
+}
+
+bool AVoidProjectileWeapon::IsEmpty()
+{
+	return Ammo <= 0;;
+}
+
+bool AVoidProjectileWeapon::IsFull()
+{
+	return Ammo == MagCapacity;
+}
+
+void AVoidProjectileWeapon::Recharge()
+{
+	UpdateAmmoValues();
+}
+
+void AVoidProjectileWeapon::UpdateAmmoValues()
+{
+	int32 ReloadAmount = AmountToReload();
+	
+	CarriedAmmo -= ReloadAmount;
+
+	AddAmmo(ReloadAmount);
+	
+}
+
+int32 AVoidProjectileWeapon::AmountToReload() const
+{
+	int32 RoomInMag = MagCapacity - Ammo;
+	
+	int32 Least = FMath::Min(RoomInMag, CarriedAmmo);
+	return FMath::Clamp(RoomInMag, 0, Least);
+	
+}
+
+bool AVoidProjectileWeapon::CanRecharge()
+{
+	return CarriedAmmo > 0 && !IsFull();
+}
+
+
+
+
+
+
+
