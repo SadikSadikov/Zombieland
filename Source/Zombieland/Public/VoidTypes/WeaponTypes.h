@@ -10,3 +10,13 @@ enum class EWeaponType  : uint8
 	EWT_Max UMETA(DisplayName = "DeafultMax")
 	
 };
+
+UENUM(BlueprintType)
+enum class EAttackType  : uint8
+{
+	EAT_Primary UMETA(DisplayName = "Primary"),
+	EAT_Secondary UMETA(DisplayName = "Secondary"),
+
+	EAT_Max UMETA(DisplayName = "DeafultMax")
+	
+};

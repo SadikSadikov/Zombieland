@@ -49,7 +49,7 @@ void UCombatComponent::Attack(EAttackType AttackType)
 	if (CharacterOwner && CanAttack())
 	{
 		CombatState = ECombatState::ECS_Attacking;
-		CharacterOwner->PlayAttackMontage(EquippedWeapon->GetWeaponType());
+		CharacterOwner->PlayAttackMontage(EquippedWeapon->GetWeaponType(), AttackType);
 		
 	}
 }
@@ -63,31 +63,16 @@ bool UCombatComponent::CanAttack()
 
 void UCombatComponent::AttackImpact(EAttackType AttackType)
 {
-	switch (EquippedWeapon->GetWeaponType())
+	if (AttackType == EAttackType::EAT_Primary)
 	{
-	case EWeaponType::EWT_Unarmed:
-		// TODO:: Make unarmed attack
-		break;
-
-	case EWeaponType::EWT_Sword:
-		// TODO:: Make sword attack
-		break;
-
-	case EWeaponType::EWT_Gun:
-		FireGun();
-		
-		break;
-			
-	default: ;
+		EquippedWeapon->PrimaryAttack(CharacterOwner->GetHitTarget());
+	}
+	else if (AttackType == EAttackType::EAT_Secondary)
+	{
+		EquippedWeapon->SecondaryAttack(CharacterOwner->GetHitTarget());
 	}
 
 	StartAttackTimer();
-}
-
-void UCombatComponent::FireGun()
-{
-	
-	EquippedWeapon->Attack(CharacterOwner->GetHitTarget());
 }
 
 void UCombatComponent::StartAttackTimer()
@@ -100,6 +85,14 @@ void UCombatComponent::StartAttackTimer()
 		EquippedWeapon->GetAttackDelay());
 }
 
+void UCombatComponent::AttackTimerFinished()
+{
+	if (EquippedWeapon == nullptr) return;
+	CombatState = ECombatState::ECS_Unoccupied;
+
+	RechargeEmptyWeapon();
+}
+
 void UCombatComponent::RechargeEmptyWeapon()
 {
 	if (EquippedWeapon && !EquippedWeapon->CanAttack())
@@ -108,13 +101,7 @@ void UCombatComponent::RechargeEmptyWeapon()
 	}
 }
 
-void UCombatComponent::AttackTimerFinished()
-{
-	if (EquippedWeapon == nullptr) return;
-	CombatState = ECombatState::ECS_Unoccupied;
 
-	RechargeEmptyWeapon();
-}
 
 
 

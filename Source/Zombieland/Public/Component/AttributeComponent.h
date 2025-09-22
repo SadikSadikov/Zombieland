@@ -4,7 +4,11 @@
 
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
+#include "VoidTypes/DamageInfo.h"
 #include "AttributeComponent.generated.h"
+
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnDamageTaken);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnDeath);
 
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
@@ -16,9 +20,21 @@ public:
 	
 	UAttributeComponent();
 
+	UPROPERTY(BlueprintAssignable)
+	FOnDamageTaken OnDamageTaken;
+
+	UPROPERTY(BlueprintAssignable)
+	FOnDeath OnDeath;
+
+	void Heal(float Amount);
+
+	void TakeDamage(const FDamageInfo& DamageInfo);
+
 protected:
 	
 	virtual void BeginPlay() override;
+
+
 
 private:
 
@@ -31,6 +47,13 @@ private:
 	// For now this is experimental
 	UPROPERTY(EditDefaultsOnly, Category = "Attributes")
 	float Speed = 600.f;
+
+	bool bIsDead = false;
+
+public:
+
+	FORCEINLINE float GetHealth() const { return Health; }
+	FORCEINLINE float GetMaxHealth() const { return MaxHealth; }
 
 
 

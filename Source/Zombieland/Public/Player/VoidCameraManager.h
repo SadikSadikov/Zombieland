@@ -25,6 +25,6 @@ protected:
 private:
 
 	UPROPERTY(EditDefaultsOnly, Category = "Camera Properties")
-	FVector CameraLocOffset;
+	FVector CameraLocOffset = FVector(-1200.f, 0.f, 1200);
 	
 };

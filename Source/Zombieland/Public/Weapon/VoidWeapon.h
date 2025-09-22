@@ -4,23 +4,12 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
+#include "Interaction/WeaponInterface.h"
 #include "VoidTypes/WeaponTypes.h"
 #include "VoidWeapon.generated.h"
 
-
-
-UENUM(BlueprintType)
-enum class EAttackType  : uint8
-{
-	EAT_Primary UMETA(DisplayName = "Primary"),
-	EAT_Secondary UMETA(DisplayName = "Secondary"),
-
-	EAT_Max UMETA(DisplayName = "DeafultMax")
-	
-};
-
 UCLASS()
-class ZOMBIELAND_API AVoidWeapon : public AActor
+class ZOMBIELAND_API AVoidWeapon : public AActor, public IWeaponInterface
 {
 	GENERATED_BODY()
 	
@@ -28,7 +17,15 @@ public:
 	
 	AVoidWeapon();
 
-	virtual void Attack(const FVector& TraceHitTarget);
+	/* Weapon Interface */
+
+	virtual float GetDamage() override;
+
+	/* end Weapon Interface */
+
+	virtual void PrimaryAttack(const FVector& TraceHitTarget);
+
+	virtual void SecondaryAttack(const FVector& TraceHitTarget);
 
 	virtual void Recharge();
 	
@@ -49,10 +46,15 @@ protected:
 	UPROPERTY(EditAnywhere, Category = "Combat")
 	EWeaponType WeaponType = EWeaponType::EWT_Unarmed;
 
+	UPROPERTY(EditAnywhere, Category = "Combat")
+	float Damage = 5.f;
+
 private:
 
 	UPROPERTY(VisibleAnywhere)
 	TObjectPtr<UStaticMeshComponent> WeaponMesh;
+
+	
 
 public:
 

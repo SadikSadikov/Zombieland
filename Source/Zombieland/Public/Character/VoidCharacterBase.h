@@ -4,23 +4,39 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
+#include "Interaction/DamageableInterface.h"
 #include "VoidTypes/WeaponTypes.h"
 #include "VoidCharacterBase.generated.h"
 
+class UAttributeComponent;
 class UCombatComponent;
 
 UCLASS()
-class ZOMBIELAND_API AVoidCharacterBase : public ACharacter
+class ZOMBIELAND_API AVoidCharacterBase : public ACharacter, public IDamageableInterface
 {
 	GENERATED_BODY()
 
 public:
+
+	
 	
 	AVoidCharacterBase();
 
+	/* Damageable Interface*/
+
+	virtual float GetHealth() override;
+
+	virtual float GetMaxHealth() override;
+
+	virtual void Heal(float Amount) override;
+
+	virtual void TakeDamage(const FDamageInfo& DamageInfo) override;
+
+	/* end Damageable Interface*/
+
 	virtual  void PostInitializeComponents() override;
 
-	void PlayAttackMontage(const EWeaponType WeaponType);
+	void PlayAttackMontage(const EWeaponType WeaponType, EAttackType AttackType);
 
 	void PlayRechargeMontage();
 	
@@ -28,6 +44,12 @@ public:
 protected:
 	
 	virtual void BeginPlay() override;
+
+	UFUNCTION()
+	virtual void ReceiveDamage();
+
+	UFUNCTION()
+	virtual void OnDeath();
 
 	UPROPERTY(EditDefaultsOnly, Category = "Combat|Animation")
 	TMap<EWeaponType, UAnimMontage*> WeaponMontages;
@@ -37,6 +59,9 @@ protected:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	UCombatComponent* CombatComp;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	UAttributeComponent* AttributeComponent;
 
 	FVector HitTarget = FVector::ZeroVector;
 

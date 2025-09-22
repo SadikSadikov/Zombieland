@@ -15,7 +15,9 @@ class ZOMBIELAND_API AVoidProjectileWeapon : public AVoidWeapon
 
 public:
 
-	virtual void Attack(const FVector& TraceHitTarget) override;
+	virtual void PrimaryAttack(const FVector& TraceHitTarget) override;
+
+	virtual void SecondaryAttack(const FVector& TraceHitTarget) override;
 
 	virtual bool CanAttack() override;
 
@@ -56,6 +58,16 @@ private:
 
 	UPROPERTY(EditAnywhere, Category = "Properties")
 	TSubclassOf<AVoidProjectile> ProjectileClass;
+
+	// Effect
+
+	UPROPERTY(EditAnywhere, Category = "Properties|Effects")
+	TObjectPtr<UParticleSystem> MuzzleFlash;
+
+	UPROPERTY(EditAnywhere, Category = "Properties|Effects")
+	TObjectPtr<USoundBase> FireSound;
+
+	
 	
 	
 };

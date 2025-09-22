@@ -18,3 +18,26 @@ void UAttributeComponent::BeginPlay()
 	
 }
 
+void UAttributeComponent::Heal(float Amount)
+{
+	Health = FMath::Clamp(Health + Amount, 0, MaxHealth);
+}
+
+void UAttributeComponent::TakeDamage(const FDamageInfo& DamageInfo)
+{
+	if (bIsDead) return;
+	
+	Health = FMath::Clamp(Health - DamageInfo.Amount, 0.f, MaxHealth);
+	
+	OnDamageTaken.Broadcast();
+
+
+	if (Health == 0.f)
+	{
+		bIsDead = true;
+		OnDeath.Broadcast();
+		
+	}
+	
+}
+

@@ -45,8 +45,6 @@ protected:
 
 	// Attack
 
-	void FireGun();
-
 	bool CanAttack();
 
 	void StartAttackTimer();

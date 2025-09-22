@@ -3,7 +3,9 @@
 
 #include "Character/VoidCharacterBase.h"
 
+#include "Component/AttributeComponent.h"
 #include "Component/CombatComponent.h"
+#include "Components/CapsuleComponent.h"
 
 
 AVoidCharacterBase::AVoidCharacterBase()
@@ -11,8 +13,59 @@ AVoidCharacterBase::AVoidCharacterBase()
 
 	PrimaryActorTick.bCanEverTick = true;
 
+	GetCapsuleComponent()->SetCollisionResponseToAllChannels(ECR_Block);
+	GetCapsuleComponent()->SetCollisionResponseToChannel(ECC_Camera, ECR_Ignore);
+
+	GetMesh()->SetCollisionEnabled(ECollisionEnabled::Type::NoCollision);
+	GetMesh()->SetCollisionObjectType(ECC_WorldDynamic);
+	GetMesh()->SetCollisionResponseToAllChannels(ECR_Ignore);
+
+	
 	CombatComp = CreateDefaultSubobject<UCombatComponent>(TEXT("Combat"));
 
+	AttributeComponent = CreateDefaultSubobject<UAttributeComponent>(TEXT("Attribute"));
+
+}
+
+void AVoidCharacterBase::BeginPlay()
+{
+	Super::BeginPlay();
+
+	if (AttributeComponent)
+	{
+		AttributeComponent->OnDamageTaken.AddDynamic(this, &AVoidCharacterBase::ReceiveDamage);
+
+		AttributeComponent->OnDeath.AddDynamic(this, &AVoidCharacterBase::OnDeath);
+	}
+	
+	
+}
+
+float AVoidCharacterBase::GetHealth()
+{
+	if (AttributeComponent == nullptr) return -1.f;
+	
+	return AttributeComponent->GetHealth();
+}
+
+float AVoidCharacterBase::GetMaxHealth()
+{
+	if (AttributeComponent == nullptr)return -1.f;
+	
+	return AttributeComponent->GetMaxHealth();
+}
+
+void AVoidCharacterBase::Heal(float Amount)
+{
+	if (AttributeComponent == nullptr) return;
+	
+	AttributeComponent->Heal(Amount);
+}
+
+void AVoidCharacterBase::TakeDamage(const FDamageInfo& DamageInfo)
+{
+	if (AttributeComponent == nullptr) return;
+	AttributeComponent->TakeDamage(DamageInfo);
 }
 
 void AVoidCharacterBase::PostInitializeComponents()
@@ -25,15 +78,17 @@ void AVoidCharacterBase::PostInitializeComponents()
 	}
 }
 
-void AVoidCharacterBase::PlayAttackMontage(const EWeaponType WeaponType)
+void AVoidCharacterBase::PlayAttackMontage(const EWeaponType WeaponType, EAttackType AttackType)
 {
-
-	// TODO:: Choice with section name first attack or secondary
+	
 	if (WeaponMontages.IsEmpty() || !WeaponMontages.Contains(WeaponType)) return;
 
 	if (UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance())
 	{
 		AnimInstance->Montage_Play(WeaponMontages[WeaponType]);
+		const FName Section = AttackType == EAttackType::EAT_Primary ? FName("Primary") : FName("Secondary");
+		
+		AnimInstance->Montage_JumpToSection(Section, WeaponMontages[WeaponType]);
 	}
 }
 
@@ -49,10 +104,16 @@ void AVoidCharacterBase::PlayRechargeMontage()
 	}
 }
 
-void AVoidCharacterBase::BeginPlay()
+
+
+void AVoidCharacterBase::ReceiveDamage()
 {
-	Super::BeginPlay();
-	
+	GEngine->AddOnScreenDebugMessage(-1, 2.F, FColor::Red, TEXT("Damage is Taken"));
+}
+
+void AVoidCharacterBase::OnDeath()
+{
+	GEngine->AddOnScreenDebugMessage(-1, 2.F, FColor::Red, TEXT("IsDead"));
 }
 
 

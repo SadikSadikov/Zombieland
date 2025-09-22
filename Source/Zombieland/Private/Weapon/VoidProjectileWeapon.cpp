@@ -3,6 +3,7 @@
 
 #include "Weapon/VoidProjectileWeapon.h"
 #include "Engine/StaticMeshSocket.h"
+#include "Kismet/GameplayStatics.h"
 #include "Weapon/Projectile/VoidProjectile.h"
 
 
@@ -14,14 +15,25 @@ void AVoidProjectileWeapon::BeginPlay()
 	Ammo = FMath::Clamp(Ammo, 0, MagCapacity);
 }
 
-void AVoidProjectileWeapon::Attack(const FVector& TraceHitTarget)
+void AVoidProjectileWeapon::PrimaryAttack(const FVector& TraceHitTarget)
 {
-	Super::Attack(TraceHitTarget);
+	Super::PrimaryAttack(TraceHitTarget);
+
+	
 
 	if (const UStaticMeshSocket* MeshSocket = GetWeaponMesh()->GetSocketByName(TipSocketName))
 	{
 		FTransform SocketTransform;
 		MeshSocket->GetSocketTransform(SocketTransform, GetWeaponMesh());
+
+		if (MuzzleFlash)
+		{
+			UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), MuzzleFlash, SocketTransform);
+		}
+		if (FireSound)
+		{
+			UGameplayStatics::SpawnSoundAtLocation(this, FireSound, SocketTransform.GetLocation());
+		}
 
 		FVector ToTarget = TraceHitTarget - SocketTransform.GetLocation();
 		FRotator TargetRotation = ToTarget.Rotation();
@@ -29,7 +41,8 @@ void AVoidProjectileWeapon::Attack(const FVector& TraceHitTarget)
 		APawn* InstigatorPawn = Cast<APawn>(GetOwner());
 		
 		FActorSpawnParameters SpawnParameters;
-		SpawnParameters.Owner = GetOwner();
+		SpawnParameters.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn;
+		SpawnParameters.Owner = this;
 		SpawnParameters.Instigator = InstigatorPawn;
 		
 		GetWorld()->SpawnActor<AVoidProjectile>(ProjectileClass, SocketTransform.GetLocation(), TargetRotation, SpawnParameters);
@@ -39,6 +52,13 @@ void AVoidProjectileWeapon::Attack(const FVector& TraceHitTarget)
 		GEngine->AddOnScreenDebugMessage(1, 2.f, FColor::Green, FString::Printf(TEXT("Ammo - %d"), Ammo));
 		
 	}
+}
+
+void AVoidProjectileWeapon::SecondaryAttack(const FVector& TraceHitTarget)
+{
+	Super::SecondaryAttack(TraceHitTarget);
+
+	// TODO:: Implement Secondary Attack
 }
 
 bool AVoidProjectileWeapon::CanAttack()
