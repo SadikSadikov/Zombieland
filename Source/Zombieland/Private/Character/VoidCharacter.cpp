@@ -9,6 +9,19 @@
 #include "Kismet/KismetMathLibrary.h"
 #include "Player/VoidPlayerController.h"
 
+AVoidCharacter::AVoidCharacter()
+{
+	GetCharacterMovement()->bOrientRotationToMovement = false;
+	GetCharacterMovement()->bConstrainToPlane = true;
+	GetCharacterMovement()->bSnapToPlaneAtStart = true;
+
+	bUseControllerRotationPitch = false;
+	bUseControllerRotationRoll = false;
+	bUseControllerRotationYaw = false;
+
+	Tags.Add(TEXT("Player"));
+}
+
 void AVoidCharacter::BeginPlay()
 {
 	Super::BeginPlay();
@@ -37,16 +50,7 @@ void AVoidCharacter::PollInit()
 }
 
 
-AVoidCharacter::AVoidCharacter()
-{
-	GetCharacterMovement()->bOrientRotationToMovement = false;
-	GetCharacterMovement()->bConstrainToPlane = true;
-	GetCharacterMovement()->bSnapToPlaneAtStart = true;
 
-	bUseControllerRotationPitch = false;
-	bUseControllerRotationRoll = false;
-	bUseControllerRotationYaw = false;
-}
 
 void AVoidCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {

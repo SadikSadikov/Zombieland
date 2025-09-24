@@ -48,6 +48,11 @@ void UCombatComponent::Attack(EAttackType AttackType)
 	
 	if (CharacterOwner && CanAttack())
 	{
+		if (CharacterOwner->Implements<UCombatInterface>())
+		{
+			ICombatInterface::Execute_UpdateFacingTarget(GetOwner(), CharacterOwner->GetHitTarget());
+		}
+		
 		CombatState = ECombatState::ECS_Attacking;
 		CharacterOwner->PlayAttackMontage(EquippedWeapon->GetWeaponType(), AttackType);
 		

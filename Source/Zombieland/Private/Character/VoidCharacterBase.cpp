@@ -108,11 +108,13 @@ void AVoidCharacterBase::PlayRechargeMontage()
 
 void AVoidCharacterBase::ReceiveDamage()
 {
+	// TODO:: Think for hit react and implement
 	GEngine->AddOnScreenDebugMessage(-1, 2.F, FColor::Red, TEXT("Damage is Taken"));
 }
 
 void AVoidCharacterBase::OnDeath()
 {
+	// TODO:: Implement Die 
 	GEngine->AddOnScreenDebugMessage(-1, 2.F, FColor::Red, TEXT("IsDead"));
 }
 

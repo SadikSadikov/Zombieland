@@ -3,6 +3,8 @@
 
 #include "Weapon/VoidWeapon.h"
 
+#include "Interaction/CombatInterface.h"
+
 AVoidWeapon::AVoidWeapon()
 {
 	PrimaryActorTick.bCanEverTick = false;
@@ -28,6 +30,7 @@ void AVoidWeapon::BeginPlay()
 
 void AVoidWeapon::PrimaryAttack(const FVector& TraceHitTarget)
 {
+	
 }
 
 void AVoidWeapon::SecondaryAttack(const FVector& TraceHitTarget)

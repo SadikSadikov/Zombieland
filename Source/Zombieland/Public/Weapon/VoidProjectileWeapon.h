@@ -53,18 +53,18 @@ protected:
 
 private:
 	
-	UPROPERTY(EditAnywhere, Category = "Properties")
+	UPROPERTY(EditAnywhere, Category = "Combat")
 	FName TipSocketName;
 
-	UPROPERTY(EditAnywhere, Category = "Properties")
+	UPROPERTY(EditAnywhere, Category = "Combat")
 	TSubclassOf<AVoidProjectile> ProjectileClass;
 
 	// Effect
 
-	UPROPERTY(EditAnywhere, Category = "Properties|Effects")
+	UPROPERTY(EditAnywhere, Category = "Combat|Effects")
 	TObjectPtr<UParticleSystem> MuzzleFlash;
 
-	UPROPERTY(EditAnywhere, Category = "Properties|Effects")
+	UPROPERTY(EditAnywhere, Category = "Combat|Effects")
 	TObjectPtr<USoundBase> FireSound;
 
 	

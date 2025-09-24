@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
+#include "Interaction/CombatInterface.h"
 #include "Interaction/DamageableInterface.h"
 #include "VoidTypes/WeaponTypes.h"
 #include "VoidCharacterBase.generated.h"
@@ -12,7 +13,7 @@ class UAttributeComponent;
 class UCombatComponent;
 
 UCLASS()
-class ZOMBIELAND_API AVoidCharacterBase : public ACharacter, public IDamageableInterface
+class ZOMBIELAND_API AVoidCharacterBase : public ACharacter, public IDamageableInterface, public ICombatInterface
 {
 	GENERATED_BODY()
 
