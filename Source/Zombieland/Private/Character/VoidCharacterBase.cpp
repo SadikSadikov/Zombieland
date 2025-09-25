@@ -3,6 +3,7 @@
 
 #include "Character/VoidCharacterBase.h"
 
+#include "ViewportInteractionTypes.h"
 #include "Component/AttributeComponent.h"
 #include "Component/CombatComponent.h"
 #include "Components/CapsuleComponent.h"
@@ -25,11 +26,18 @@ AVoidCharacterBase::AVoidCharacterBase()
 
 	AttributeComponent = CreateDefaultSubobject<UAttributeComponent>(TEXT("Attribute"));
 
+	HitFlashTimeline = CreateDefaultSubobject<UTimelineComponent>(TEXT("HitFlashTimeline"));
+
 }
+
+
 
 void AVoidCharacterBase::BeginPlay()
 {
 	Super::BeginPlay();
+
+	CreateHitFlashDynamicMaterial();
+	
 
 	if (AttributeComponent)
 	{
@@ -39,6 +47,19 @@ void AVoidCharacterBase::BeginPlay()
 	}
 	
 	
+}
+
+void AVoidCharacterBase::CreateHitFlashDynamicMaterial()
+{
+	if (bUseHitFlash && GetMesh())
+	{
+		for (UMaterialInterface* DyncMat : GetMesh()->GetMaterials())
+		{
+			UMaterialInstanceDynamic* TempMaterial = UMaterialInstanceDynamic::Create(DyncMat, this);
+			HitFlashMaterials.Add(TempMaterial);
+		}
+		HitFlashTrack.BindDynamic(this, &AVoidCharacterBase::AVoidCharacterBase::UpdateEndHitFlash);
+	}
 }
 
 float AVoidCharacterBase::GetHealth()
@@ -106,10 +127,10 @@ void AVoidCharacterBase::PlayRechargeMontage()
 
 
 
+
 void AVoidCharacterBase::ReceiveDamage()
 {
-	// TODO:: Think for hit react and implement
-	GEngine->AddOnScreenDebugMessage(-1, 2.F, FColor::Red, TEXT("Damage is Taken"));
+	HitFlash();
 }
 
 void AVoidCharacterBase::OnDeath()
@@ -117,6 +138,44 @@ void AVoidCharacterBase::OnDeath()
 	// TODO:: Implement Die 
 	GEngine->AddOnScreenDebugMessage(-1, 2.F, FColor::Red, TEXT("IsDead"));
 }
+
+void AVoidCharacterBase::HitFlash()
+{
+	if (bUseHitFlash && !HitFlashMaterials.IsEmpty())
+	{
+		int Counter = 0;
+		for (UMaterialInstanceDynamic* DyncMat : HitFlashMaterials)
+		{
+			GetMesh()->SetMaterial(Counter, DyncMat);
+			DyncMat->SetScalarParameterValue(FName("FlashMultiplier"), 1.f);
+			DyncMat->SetVectorParameterValue(FName("FlashColor"), HitFlashColor);
+			Counter++;
+		}
+		EndHitFlash();
+
+		
+	}
+}
+
+void AVoidCharacterBase::EndHitFlash()
+{
+	if (HitFlashCurve && HitFlashTimeline)
+	{
+		HitFlashTimeline->AddInterpFloat(HitFlashCurve, HitFlashTrack);
+		HitFlashTimeline->SetPlayRate(HitFlashPlayRate);
+		HitFlashTimeline->PlayFromStart();
+	}
+}
+
+void AVoidCharacterBase::UpdateEndHitFlash(float HitFlashValue)
+{
+	for (UMaterialInstanceDynamic* DyncMat : HitFlashMaterials)
+	{
+		DyncMat->SetScalarParameterValue(FName("FlashMultiplier"), HitFlashValue);
+	}
+}
+
+
 
 
 

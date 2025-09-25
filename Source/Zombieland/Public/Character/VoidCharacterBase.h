@@ -3,12 +3,12 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "Components/TimelineComponent.h"
 #include "GameFramework/Character.h"
 #include "Interaction/CombatInterface.h"
 #include "Interaction/DamageableInterface.h"
 #include "VoidTypes/WeaponTypes.h"
 #include "VoidCharacterBase.generated.h"
-
 class UAttributeComponent;
 class UCombatComponent;
 
@@ -22,6 +22,7 @@ public:
 	
 	
 	AVoidCharacterBase();
+	void CreateHitFlashDynamicMaterial();
 
 	/* Damageable Interface*/
 
@@ -40,7 +41,7 @@ public:
 	void PlayAttackMontage(const EWeaponType WeaponType, EAttackType AttackType);
 
 	void PlayRechargeMontage();
-	
+	void HitFlash();
 
 protected:
 	
@@ -65,6 +66,35 @@ protected:
 	UAttributeComponent* AttributeComponent;
 
 	FVector HitTarget = FVector::ZeroVector;
+
+	// Hit Flash
+
+	UPROPERTY(EditAnywhere, Category = "Combat|HitFlash")
+	bool bUseHitFlash = true;
+
+	UPROPERTY(VisibleAnywhere)
+	TObjectPtr<UTimelineComponent> HitFlashTimeline;
+
+	FOnTimelineFloat HitFlashTrack;
+
+	UPROPERTY(EditAnywhere, Category = "Combat|HitFlash")
+	TObjectPtr<UCurveFloat> HitFlashCurve;
+
+	UPROPERTY()
+	TArray<UMaterialInstanceDynamic*> HitFlashMaterials;
+
+	UPROPERTY(EditAnywhere, Category = "Combat|HitFlash")
+	FLinearColor HitFlashColor = FLinearColor::White;
+
+	UPROPERTY(EditAnywhere, Category = "Combat|HitFlash")
+	float HitFlashPlayRate = 5.f;
+
+private:
+
+	void EndHitFlash();
+
+	UFUNCTION()
+	void UpdateEndHitFlash(float HitFlashValue);
 
 public:
 
