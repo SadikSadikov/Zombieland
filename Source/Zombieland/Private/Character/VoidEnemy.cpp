@@ -44,7 +44,8 @@ void AVoidEnemy::PossessedBy(AController* NewController)
 
 	if (BehaviorTree)
 	{
-		if (AVoidAIController* VoidAIController = Cast<AVoidAIController>(NewController))
+		VoidAIController = Cast<AVoidAIController>(NewController);
+		if (VoidAIController)
 		{
 			VoidAIController->GetBlackboardComponent()->InitializeBlackboard(*BehaviorTree->BlackboardAsset);
 			VoidAIController->RunBehaviorTree(BehaviorTree);
@@ -53,4 +54,33 @@ void AVoidEnemy::PossessedBy(AController* NewController)
 		
 	}
 	
+}
+
+void AVoidEnemy::ReceiveDamage()
+{
+	Super::ReceiveDamage();
+
+	
+}
+
+void AVoidEnemy::PlayHitReactMontage()
+{
+	Super::PlayHitReactMontage();
+
+	GetCharacterMovement()->MaxWalkSpeed = 0.f;
+	if (VoidAIController)
+	{
+		VoidAIController->GetBlackboardComponent()->SetValueAsBool(FName("HitReacting"), IsHitReacting());
+	}
+}
+
+void AVoidEnemy::EndHitReacting()
+{
+	Super::EndHitReacting();
+
+	GetCharacterMovement()->MaxWalkSpeed = BaseWalkSpeed;
+	if (VoidAIController)
+	{
+		VoidAIController->GetBlackboardComponent()->SetValueAsBool(FName("HitReacting"), IsHitReacting());
+	}
 }

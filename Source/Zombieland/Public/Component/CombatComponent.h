@@ -88,9 +88,14 @@ private:
 
 	void SpawnDefaultWeapon();
 
+	UFUNCTION()
+	void MontageIsInterrupted(ECombatState CurrentCombatState);
+
 	
 public:
 
+	FORCEINLINE ECombatState GetCombatState() const { return CombatState; }
+	FORCEINLINE void SetCombatState(const ECombatState InCombatState) { CombatState = InCombatState; }
 	FORCEINLINE AVoidCharacterBase* GetCharacterOwner() { return CharacterOwner; }
 	FORCEINLINE void SetCharacterOwner(AVoidCharacterBase* InCharacterOwner) { CharacterOwner = InCharacterOwner; }
 

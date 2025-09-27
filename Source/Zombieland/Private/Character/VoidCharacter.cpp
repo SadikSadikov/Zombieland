@@ -4,10 +4,10 @@
 #include "Character/VoidCharacter.h"
 #include "EnhancedInputSubsystems.h"
 #include "EnhancedInputComponent.h"
+#include "Component/CombatComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "Kismet/KismetMathLibrary.h"
-#include "Player/VoidPlayerController.h"
 
 AVoidCharacter::AVoidCharacter()
 {
@@ -35,6 +35,26 @@ void AVoidCharacter::BeginPlay()
 	}
 }
 
+void AVoidCharacter::ReceiveDamage()
+{
+	Super::ReceiveDamage();
+
+	
+}
+
+void AVoidCharacter::PlayHitReactMontage()
+{
+	Super::PlayHitReactMontage();
+	
+	
+}
+
+void AVoidCharacter::EndHitReacting()
+{
+	Super::EndHitReacting();
+	
+}
+
 void AVoidCharacter::PollInit()
 {
 	
@@ -59,6 +79,9 @@ void AVoidCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompo
 	if (UEnhancedInputComponent* EnhancedInputComponent = CastChecked<UEnhancedInputComponent>(PlayerInputComponent))
 	{
 		EnhancedInputComponent->BindAction(MoveAction, ETriggerEvent::Triggered, this, &AVoidCharacter::Move);
+		EnhancedInputComponent->BindAction(FirstAttackAction, ETriggerEvent::Started, this, &AVoidCharacter::FirstAttack);
+		EnhancedInputComponent->BindAction(SecondAttackAction, ETriggerEvent::Started, this, &AVoidCharacter::SecondAttack);
+		EnhancedInputComponent->BindAction(RechargeAction, ETriggerEvent::Started, this, &AVoidCharacter::Recharge);
 	}
 }
 
@@ -80,16 +103,26 @@ void AVoidCharacter::CalcActorRotation(float DeltaTime)
 	SetActorRotation(FRotator(ActorRotation.Pitch, CursorRotation.Yaw, ActorRotation.Roll));
 }
 
-float AVoidCharacter::CalcSpeed()
+float AVoidCharacter::CalcSpeed() const
 {
 	FVector CharVelocity = GetCharacterMovement()->Velocity;
 	CharVelocity.Z = 0;
 	return CharVelocity.Size();
 }
 
+bool AVoidCharacter::CheckValidCombatInput() const
+{
+	return !IsHitReacting();
+}
+
+
+
 void AVoidCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+
+	GEngine->AddOnScreenDebugMessage(-1, 2.f, FColor::Blue, FString::Printf(TEXT("Combat State: %s"), *UEnum::GetValueAsString(CombatComp->GetCombatState())));
+
 
 	CalcActorRotation(DeltaTime);
 
@@ -161,4 +194,31 @@ void AVoidCharacter::Move(const FInputActionValue& Value)
 
 	AddMovementInput(ForwardDirection, InputAxisVector.Y);
 	AddMovementInput(RightDirection, InputAxisVector.X);
+}
+
+void AVoidCharacter::FirstAttack(const FInputActionValue& Value)
+{
+	if (CheckValidCombatInput())
+	{
+		CombatComp->Attack(EAttackType::EAT_Primary);
+	}
+	
+}
+
+void AVoidCharacter::SecondAttack(const FInputActionValue& Value)
+{
+	if (CheckValidCombatInput())
+	{
+		CombatComp->Attack(EAttackType::EAT_Secondary);
+	}
+	
+}
+
+void AVoidCharacter::Recharge(const FInputActionValue& Value)
+{
+	if (CheckValidCombatInput())
+	{
+		CombatComp->Recharge();
+	}
+	
 }

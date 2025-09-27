@@ -7,10 +7,13 @@
 #include "GameFramework/Character.h"
 #include "Interaction/CombatInterface.h"
 #include "Interaction/DamageableInterface.h"
+#include "VoidTypes/CombatState.h"
 #include "VoidTypes/WeaponTypes.h"
 #include "VoidCharacterBase.generated.h"
 class UAttributeComponent;
 class UCombatComponent;
+
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnMontageIsInterruptedSignature, ECombatState, CurrentCombatState);
 
 UCLASS()
 class ZOMBIELAND_API AVoidCharacterBase : public ACharacter, public IDamageableInterface, public ICombatInterface
@@ -41,7 +44,12 @@ public:
 	void PlayAttackMontage(const EWeaponType WeaponType, EAttackType AttackType);
 
 	void PlayRechargeMontage();
-	void HitFlash();
+
+	// This function needs to be called in AnimNotify
+	UFUNCTION(BlueprintCallable)
+	virtual void EndHitReacting();
+
+	FOnMontageIsInterruptedSignature OnMontageIsInterruptedDelegate;
 
 protected:
 	
@@ -53,11 +61,18 @@ protected:
 	UFUNCTION()
 	virtual void OnDeath();
 
+	void HitFlash();
+
+	virtual void PlayHitReactMontage();
+
 	UPROPERTY(EditDefaultsOnly, Category = "Combat|Animation")
 	TMap<EWeaponType, UAnimMontage*> WeaponMontages;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Combat|Animation")
 	TObjectPtr<UAnimMontage> RechargeMontage;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Combat|Animation")
+	TObjectPtr<UAnimMontage> HitReactMontage;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	UCombatComponent* CombatComp;
@@ -89,6 +104,9 @@ protected:
 	UPROPERTY(EditAnywhere, Category = "Combat|HitFlash")
 	float HitFlashPlayRate = 5.f;
 
+	UPROPERTY(EditAnywhere, Category = "Movemenet")
+    	float BaseWalkSpeed = 600.f;
+
 private:
 
 	void EndHitFlash();
@@ -96,11 +114,17 @@ private:
 	UFUNCTION()
 	void UpdateEndHitFlash(float HitFlashValue);
 
+	UFUNCTION()
+	void MontageIsInterrupted(UAnimMontage* Montage, bool bInterrupted);
+
+	bool bHitReacting = false;
+
 public:
 
 	UFUNCTION(BlueprintCallable)
 	FORCEINLINE UCombatComponent* GetCombatComponent() const { return CombatComp; }
 	FORCEINLINE const FVector& GetHitTarget() const { return HitTarget; }
+	FORCEINLINE bool IsHitReacting() const { return bHitReacting; }
 	
 	
 

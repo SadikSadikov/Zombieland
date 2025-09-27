@@ -7,6 +7,7 @@
 #include "Interaction/EnemyInterface.h"
 #include "VoidEnemy.generated.h"
 
+class AVoidAIController;
 class UBehaviorTree;
 /**
  * 
@@ -17,6 +18,8 @@ class ZOMBIELAND_API AVoidEnemy : public AVoidCharacterBase, public IEnemyInterf
 	GENERATED_BODY()
 
 public:
+	
+	AVoidEnemy();
 
 	/* Enemy Interface */
 	virtual AActor* GetCombatTarget_Implementation() override;
@@ -26,20 +29,31 @@ public:
 	virtual void Attack_Implementation() override;
 	
 	/* end Enemy Interface */
-
-	AVoidEnemy();
-
+	
 	virtual void PossessedBy(AController* NewController) override;
 
+	virtual void EndHitReacting() override;
+
 protected:
+
+	virtual void ReceiveDamage() override;
+
+	virtual void PlayHitReactMontage() override;
+
+
 
 	UPROPERTY(BlueprintReadWrite, Category = "Combat")
 	TObjectPtr<AActor> CombatTarget;
 
 private:
+
+	UPROPERTY()
+	AVoidAIController* VoidAIController;
 	
 	UPROPERTY(EditAnywhere, Category = "Comabt|AI")
 	TObjectPtr<UBehaviorTree> BehaviorTree;
+
+	
 	
 };
 

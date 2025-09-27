@@ -17,6 +17,11 @@ void UCombatComponent::BeginPlay()
 {
 	Super::BeginPlay();
 
+	if (CharacterOwner)
+	{
+		CharacterOwner->OnMontageIsInterruptedDelegate.AddUniqueDynamic(this, &UCombatComponent::MontageIsInterrupted);
+	}
+
 	SpawnDefaultWeapon();
 	
 	
@@ -26,6 +31,7 @@ void UCombatComponent::TickComponent(float DeltaTime, enum ELevelTick TickType,
 	FActorComponentTickFunction* ThisTickFunction)
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
+
 }
 
 void UCombatComponent::EquipWeapon(AVoidWeapon* WeaponToEquip)
@@ -63,6 +69,7 @@ bool UCombatComponent::CanAttack()
 {
 	if (EquippedWeapon == nullptr) return false;
 
+	
 	return EquippedWeapon->CanAttack() && CombatState == ECombatState::ECS_Unoccupied;
 }
 
@@ -105,10 +112,6 @@ void UCombatComponent::RechargeEmptyWeapon()
 		Recharge();
 	}
 }
-
-
-
-
 
 void UCombatComponent::Recharge()
 {
@@ -168,6 +171,23 @@ void UCombatComponent::SpawnDefaultWeapon()
 		}
 	
 	}
+}
+
+void UCombatComponent::MontageIsInterrupted(ECombatState CurrentCombatState)
+{
+	if (CurrentCombatState == ECombatState::ECS_Attacking)
+	{
+		StartAttackTimer();
+	}
+	else if (CurrentCombatState == ECombatState::ECS_Recharging)
+	{
+		RechargeFinished();
+	}
+	else if (CurrentCombatState == ECombatState::ECS_SwappingWeapons)
+	{
+		//TODO:: Write logic for SwappingWeapon when montage is interrupted 
+	}
+	
 }
 
 

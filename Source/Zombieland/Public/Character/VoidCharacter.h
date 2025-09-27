@@ -26,9 +26,17 @@ public:
 	virtual void SetupPlayerInputComponent(UInputComponent* PlayerInputComponent) override;
 
 	virtual void Tick(float DeltaTime) override;
+	
+	virtual void EndHitReacting() override;
 
 protected:
 	virtual void BeginPlay() override;
+
+	virtual void ReceiveDamage() override;
+
+	virtual void PlayHitReactMontage() override;
+
+
 
 	// Poll for any relevant classes and initialize. Repeatedly check the status
 	void PollInit();
@@ -64,9 +72,11 @@ private:
 
 	void CalcActorRotation(float DeltaTime);
 	
-	float CalcSpeed();
+	float CalcSpeed() const;
 
 	// end Animation
+
+	bool CheckValidCombatInput() const;
 
 	UPROPERTY()
 	TObjectPtr<AVoidPlayerController> VoidPlayerController;
@@ -79,7 +89,22 @@ private:
 	UPROPERTY(EditDefaultsOnly, Category = "Input")
 	TObjectPtr<UInputAction> MoveAction;
 
+	UPROPERTY(EditDefaultsOnly, Category = "Input")
+	TObjectPtr<UInputAction> FirstAttackAction;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Input")
+	TObjectPtr<UInputAction> SecondAttackAction;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Input")
+	TObjectPtr<UInputAction> RechargeAction;
+
 	void Move(const FInputActionValue& Value);
+
+	void FirstAttack(const FInputActionValue& Value);
+
+	void SecondAttack(const FInputActionValue& Value);
+
+	void Recharge(const FInputActionValue& Value);
 
 	// end Input
 

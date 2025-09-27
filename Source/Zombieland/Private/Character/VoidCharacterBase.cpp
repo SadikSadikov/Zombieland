@@ -2,12 +2,13 @@
 
 
 #include "Character/VoidCharacterBase.h"
-
-#include "ViewportInteractionTypes.h"
 #include "Component/AttributeComponent.h"
 #include "Component/CombatComponent.h"
 #include "Components/CapsuleComponent.h"
+#include "GameFramework/CharacterMovementComponent.h"
 
+
+// TODO:: Clear all the bind delegates (They in most cases are handled it's self) 
 
 AVoidCharacterBase::AVoidCharacterBase()
 {
@@ -28,6 +29,8 @@ AVoidCharacterBase::AVoidCharacterBase()
 
 	HitFlashTimeline = CreateDefaultSubobject<UTimelineComponent>(TEXT("HitFlashTimeline"));
 
+	
+
 }
 
 
@@ -35,6 +38,8 @@ AVoidCharacterBase::AVoidCharacterBase()
 void AVoidCharacterBase::BeginPlay()
 {
 	Super::BeginPlay();
+
+	GetCharacterMovement()->MaxWalkSpeed = BaseWalkSpeed;
 
 	CreateHitFlashDynamicMaterial();
 	
@@ -131,6 +136,7 @@ void AVoidCharacterBase::PlayRechargeMontage()
 void AVoidCharacterBase::ReceiveDamage()
 {
 	HitFlash();
+	PlayHitReactMontage();
 }
 
 void AVoidCharacterBase::OnDeath()
@@ -173,6 +179,37 @@ void AVoidCharacterBase::UpdateEndHitFlash(float HitFlashValue)
 	{
 		DyncMat->SetScalarParameterValue(FName("FlashMultiplier"), HitFlashValue);
 	}
+}
+
+void AVoidCharacterBase::MontageIsInterrupted(UAnimMontage* Montage, bool bInterrupted)
+{
+	if (bInterrupted)
+	{
+		
+		bHitReacting = false;
+		OnMontageIsInterruptedDelegate.Broadcast(CombatComp->GetCombatState());
+		
+	}
+}
+
+void AVoidCharacterBase::PlayHitReactMontage()
+{
+	if (HitReactMontage)
+	{
+		
+		if (UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance())
+		{
+			AnimInstance->OnMontageEnded.AddUniqueDynamic(this, &AVoidCharacterBase::MontageIsInterrupted);
+			bHitReacting = true;
+			AnimInstance->Montage_Play(HitReactMontage);
+		}
+	}
+}
+
+void AVoidCharacterBase::EndHitReacting()
+{
+	bHitReacting = false;
+
 }
 
 
