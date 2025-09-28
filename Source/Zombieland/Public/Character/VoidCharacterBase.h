@@ -56,7 +56,7 @@ protected:
 	virtual void BeginPlay() override;
 
 	UFUNCTION()
-	virtual void ReceiveDamage();
+	virtual void ReceiveDamage(const FDamageInfo& DamageType);
 
 	UFUNCTION()
 	virtual void OnDeath();
@@ -107,6 +107,13 @@ protected:
 	UPROPERTY(EditAnywhere, Category = "Movemenet")
     	float BaseWalkSpeed = 600.f;
 
+
+
+	// Death
+
+	UPROPERTY(EditAnywhere, Category = "Combat|Death")
+	FVector DeathImpulse;
+
 private:
 
 	void EndHitFlash();
@@ -119,12 +126,15 @@ private:
 
 	bool bHitReacting = false;
 
+	bool bDead = false;
+
 public:
 
 	UFUNCTION(BlueprintCallable)
 	FORCEINLINE UCombatComponent* GetCombatComponent() const { return CombatComp; }
 	FORCEINLINE const FVector& GetHitTarget() const { return HitTarget; }
 	FORCEINLINE bool IsHitReacting() const { return bHitReacting; }
+	FORCEINLINE bool IsDead() const { return bDead; }
 	
 	
 

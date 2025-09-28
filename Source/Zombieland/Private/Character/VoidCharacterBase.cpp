@@ -133,16 +133,29 @@ void AVoidCharacterBase::PlayRechargeMontage()
 
 
 
-void AVoidCharacterBase::ReceiveDamage()
+void AVoidCharacterBase::ReceiveDamage(const FDamageInfo& DamageType)
 {
 	HitFlash();
 	PlayHitReactMontage();
+	
 }
 
 void AVoidCharacterBase::OnDeath()
 {
-	// TODO:: Implement Die 
-	GEngine->AddOnScreenDebugMessage(-1, 2.F, FColor::Red, TEXT("IsDead"));
+	GetMesh()->SetSimulatePhysics(true);
+	GetMesh()->SetEnableGravity(true);
+	GetMesh()->SetCollisionEnabled(ECollisionEnabled::Type::PhysicsOnly);
+	GetMesh()->SetCollisionResponseToChannel(ECC_WorldStatic, ECR_Block);
+	
+	GetMesh()->AddImpulse(DeathImpulse, NAME_None, true);
+
+
+	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::Type::NoCollision);
+	bDead = true;
+
+	//TODO:: This is experimental
+	SetLifeSpan(2.f);
+	
 }
 
 void AVoidCharacterBase::HitFlash()

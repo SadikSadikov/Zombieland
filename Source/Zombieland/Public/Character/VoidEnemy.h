@@ -36,7 +36,9 @@ public:
 
 protected:
 
-	virtual void ReceiveDamage() override;
+	virtual void ReceiveDamage(const FDamageInfo& DamageInfo) override;
+
+	virtual void OnDeath() override;
 
 	virtual void PlayHitReactMontage() override;
 
@@ -52,6 +54,9 @@ private:
 	
 	UPROPERTY(EditAnywhere, Category = "Comabt|AI")
 	TObjectPtr<UBehaviorTree> BehaviorTree;
+
+	UPROPERTY(EditAnywhere, Category = "Comabt")
+	float LifeSpan = 1.f;
 
 	
 	

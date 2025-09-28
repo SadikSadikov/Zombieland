@@ -56,12 +56,17 @@ void AVoidProjectile::OnHit(UPrimitiveComponent* OverlappedComponent, AActor* Ot
 	{
 		if (IWeaponInterface* WeaponInterface = Cast<IWeaponInterface>(GetOwner()))
 		{
+			
 			FDamageInfo DamageInfo;
 			DamageInfo.Amount = WeaponInterface->GetDamage();
+			DamageInfo.DamageCauser = OtherActor;
+			
 			Damageable->TakeDamage(DamageInfo);
 		}
 		
 	}
+
+	OtherActorTag = OtherActor->ActorHasTag(FName("Player")) || OtherActor->ActorHasTag(FName("Enemy")) ? FName("Character") : FName("Environment");
 	
 	Destroy();
 }
@@ -70,10 +75,18 @@ void AVoidProjectile::Destroyed()
 {
 	Super::Destroyed();
 
-	if (ImpactParticle)
+	//TODO:: Make choicer for other actor if is Character make impact sound and effect for character , for Environment same and for other types etc.... 
+	
+	if (ImpactCharacter && OtherActorTag == FName("Character"))
 	{
-		UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), ImpactParticle, GetActorTransform());
+		//UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), ImpactCharacterParticle, GetActorTransform());
+		UNiagaraFunctionLibrary::SpawnSystemAtLocation(GetWorld(), ImpactCharacter, GetActorLocation());
 	}
+	else if (ImpactEnvironmentParticle)
+	{
+		UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), ImpactEnvironmentParticle, GetActorTransform());
+	}
+	
 	if (ImpactSound)
 	{
 		UGameplayStatics::PlaySoundAtLocation(this, ImpactSound, GetActorLocation());
@@ -102,4 +115,6 @@ void AVoidProjectile::DestroyTimerFinished()
 {
 	Destroy();
 }
+
+
 

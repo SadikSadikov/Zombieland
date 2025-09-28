@@ -20,7 +20,7 @@ void AVoidMeleeWeapon::PrimaryAttack(const FVector& TraceHitTarget)
 
 	// TODO:: Later remove DrawDebugTrace
 	UKismetSystemLibrary::SphereTraceMulti(this, TraceHitTarget, TraceHitTarget, 25.f, TraceChanel,
-		false, TArray<AActor*>(), EDrawDebugTrace::ForDuration, Hits, true);
+		false, TArray<AActor*>(), EDrawDebugTrace::None, Hits, true);
 
 	for (const FHitResult& Hit : Hits)
 	{
@@ -30,6 +30,8 @@ void AVoidMeleeWeapon::PrimaryAttack(const FVector& TraceHitTarget)
 			{
 				FDamageInfo DamageInfo;
 				DamageInfo.Amount = GetDamage();
+				DamageInfo.DamageCauser = Hit.GetActor();
+				
 				DamagableActor->TakeDamage(DamageInfo);
 			}
 		}

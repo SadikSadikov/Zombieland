@@ -35,9 +35,9 @@ void AVoidCharacter::BeginPlay()
 	}
 }
 
-void AVoidCharacter::ReceiveDamage()
+void AVoidCharacter::ReceiveDamage(const FDamageInfo& DamageInfo)
 {
-	Super::ReceiveDamage();
+	Super::ReceiveDamage(DamageInfo);
 
 	
 }
@@ -120,9 +120,6 @@ bool AVoidCharacter::CheckValidCombatInput() const
 void AVoidCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-
-	GEngine->AddOnScreenDebugMessage(-1, 2.f, FColor::Blue, FString::Printf(TEXT("Combat State: %s"), *UEnum::GetValueAsString(CombatComp->GetCombatState())));
-
 
 	CalcActorRotation(DeltaTime);
 

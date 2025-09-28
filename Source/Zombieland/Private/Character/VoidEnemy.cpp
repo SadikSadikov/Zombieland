@@ -48,7 +48,11 @@ void AVoidEnemy::PossessedBy(AController* NewController)
 		if (VoidAIController)
 		{
 			VoidAIController->GetBlackboardComponent()->InitializeBlackboard(*BehaviorTree->BlackboardAsset);
+		
 			VoidAIController->RunBehaviorTree(BehaviorTree);
+			VoidAIController->GetBlackboardComponent()->SetValueAsBool(FName("IsDead"), IsDead());
+			VoidAIController->GetBlackboardComponent()->SetValueAsBool(FName("HitReacting"), IsHitReacting());
+			
 			
 		}
 		
@@ -56,17 +60,30 @@ void AVoidEnemy::PossessedBy(AController* NewController)
 	
 }
 
-void AVoidEnemy::ReceiveDamage()
+void AVoidEnemy::ReceiveDamage(const FDamageInfo& DamageType)
 {
-	Super::ReceiveDamage();
+	Super::ReceiveDamage(DamageType);
 
+	
+}
+
+void AVoidEnemy::OnDeath()
+{
+	SetLifeSpan(LifeSpan);
+
+	if (VoidAIController)
+	{
+		VoidAIController->GetBlackboardComponent()->SetValueAsBool(FName("IsDead"), IsDead());
+	}
+	
+	Super::OnDeath();
 	
 }
 
 void AVoidEnemy::PlayHitReactMontage()
 {
 	Super::PlayHitReactMontage();
-
+	
 	GetCharacterMovement()->MaxWalkSpeed = 0.f;
 	if (VoidAIController)
 	{
@@ -77,7 +94,7 @@ void AVoidEnemy::PlayHitReactMontage()
 void AVoidEnemy::EndHitReacting()
 {
 	Super::EndHitReacting();
-
+	
 	GetCharacterMovement()->MaxWalkSpeed = BaseWalkSpeed;
 	if (VoidAIController)
 	{

@@ -29,7 +29,7 @@ void UAttributeComponent::TakeDamage(const FDamageInfo& DamageInfo)
 	
 	Health = FMath::Clamp(Health - DamageInfo.Amount, 0.f, MaxHealth);
 	
-	OnDamageTaken.Broadcast();
+	OnDamageTaken.Broadcast(DamageInfo);
 
 
 	if (Health == 0.f)

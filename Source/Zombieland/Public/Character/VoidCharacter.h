@@ -32,7 +32,7 @@ public:
 protected:
 	virtual void BeginPlay() override;
 
-	virtual void ReceiveDamage() override;
+	virtual void ReceiveDamage(const FDamageInfo& DamageInfo) override;
 
 	virtual void PlayHitReactMontage() override;
 

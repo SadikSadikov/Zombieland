@@ -70,10 +70,18 @@ private:
 	TObjectPtr<UNiagaraComponent> TrailSystemComponent;
 
 	UPROPERTY(EditAnywhere, Category = "Properties|Effects")
-	TObjectPtr<UParticleSystem> ImpactParticle;
+	TObjectPtr<UParticleSystem> ImpactEnvironmentParticle;
+
+	UPROPERTY(EditAnywhere, Category = "Properties|Effects")
+	TObjectPtr<UParticleSystem> ImpactCharacterParticle;
+
+	UPROPERTY(EditAnywhere, Category = "Properties|Effects")
+	TObjectPtr<UNiagaraSystem> ImpactCharacter;
 
 	UPROPERTY(EditAnywhere, Category = "Properties|Effects")
 	TObjectPtr<USoundBase> ImpactSound;
+
+	FName OtherActorTag = FName("Environment");
 
 public:	
 

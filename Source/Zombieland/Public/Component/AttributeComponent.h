@@ -7,7 +7,9 @@
 #include "VoidTypes/DamageInfo.h"
 #include "AttributeComponent.generated.h"
 
-DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnDamageTaken);
+
+
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnDamageTaken, const FDamageInfo&, DamageInfo);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnDeath);
 
 
