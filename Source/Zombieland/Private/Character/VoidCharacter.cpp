@@ -8,6 +8,8 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "Kismet/KismetMathLibrary.h"
+#include "Player/VoidPlayerController.h"
+#include "UI/HUD/VoidHUD.h"
 
 AVoidCharacter::AVoidCharacter()
 {
@@ -49,9 +51,37 @@ void AVoidCharacter::PlayHitReactMontage()
 	
 }
 
+void AVoidCharacter::InitActorInfo()
+{
+	Super::InitActorInfo();
+
+	if (VoidPlayerController == nullptr)
+	{
+		VoidPlayerController = Cast<AVoidPlayerController>(GetController());
+		
+	}
+	if (VoidPlayerController)
+	{
+		if (AVoidHUD* VoidHUD = Cast<AVoidHUD>(VoidPlayerController->GetHUD()))
+		{
+			VoidHUD->InitOverlay();
+		}
+	}
+	
+}
+
 void AVoidCharacter::EndHitReacting()
 {
 	Super::EndHitReacting();
+	
+}
+
+void AVoidCharacter::PossessedBy(AController* NewController)
+{
+	Super::PossessedBy(NewController);
+
+	InitActorInfo();
+
 	
 }
 

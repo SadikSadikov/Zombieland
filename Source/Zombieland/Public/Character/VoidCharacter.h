@@ -29,14 +29,16 @@ public:
 	
 	virtual void EndHitReacting() override;
 
+	virtual void PossessedBy(AController* NewController) override;
+
 protected:
 	virtual void BeginPlay() override;
 
 	virtual void ReceiveDamage(const FDamageInfo& DamageInfo) override;
 
 	virtual void PlayHitReactMontage() override;
-
-
+	
+	virtual void InitActorInfo() override;
 
 	// Poll for any relevant classes and initialize. Repeatedly check the status
 	void PollInit();

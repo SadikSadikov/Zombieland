@@ -21,10 +21,9 @@ class ZOMBIELAND_API AVoidCharacterBase : public ACharacter, public IDamageableI
 	GENERATED_BODY()
 
 public:
-
-	
 	
 	AVoidCharacterBase();
+	
 	void CreateHitFlashDynamicMaterial();
 
 	/* Damageable Interface*/
@@ -64,6 +63,8 @@ protected:
 	void HitFlash();
 
 	virtual void PlayHitReactMontage();
+
+	virtual void InitActorInfo();
 
 	UPROPERTY(EditDefaultsOnly, Category = "Combat|Animation")
 	TMap<EWeaponType, UAnimMontage*> WeaponMontages;

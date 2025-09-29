@@ -219,6 +219,10 @@ void AVoidCharacterBase::PlayHitReactMontage()
 	}
 }
 
+void AVoidCharacterBase::InitActorInfo()
+{
+}
+
 void AVoidCharacterBase::EndHitReacting()
 {
 	bHitReacting = false;
