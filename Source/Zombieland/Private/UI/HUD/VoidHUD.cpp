@@ -2,15 +2,15 @@
 
 
 #include "UI/HUD/VoidHUD.h"
-#include "UI/Widget/VoidUserWidget.h"
 #include "Blueprint/UserWidget.h"
+#include "UI/Widget/VoidPlayerOverlay.h"
 
 void AVoidHUD::InitOverlay()
 {
 	if (VoidOverlayWidgetClass == nullptr) return;
 	
 	UUserWidget* Widget = CreateWidget<UUserWidget>(GetWorld(), VoidOverlayWidgetClass);
-	VoidOverlayWidget = Cast<UVoidUserWidget>(Widget);
+	VoidOverlayWidget = Cast<UVoidPlayerOverlay>(Widget);
 
 	Widget->AddToViewport();
 }

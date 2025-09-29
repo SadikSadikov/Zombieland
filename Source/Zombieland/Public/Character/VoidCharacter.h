@@ -40,9 +40,6 @@ protected:
 	
 	virtual void InitActorInfo() override;
 
-	// Poll for any relevant classes and initialize. Repeatedly check the status
-	void PollInit();
-
 private:
 
 	// Animation
@@ -110,8 +107,15 @@ private:
 
 	// end Input
 
+	// UI
+
+	void UpdateHUDHealth();
+
+
 public:
 
 	FORCEINLINE ETurningInPlace GetTurningInPlace() const { return TurningInPlace; }
 	
 };
+
+

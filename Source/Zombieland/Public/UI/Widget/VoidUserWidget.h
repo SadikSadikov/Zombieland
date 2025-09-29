@@ -6,6 +6,7 @@
 #include "Blueprint/UserWidget.h"
 #include "VoidUserWidget.generated.h"
 
+class AVoidCharacter;
 /**
  * 
  */
@@ -13,5 +14,6 @@ UCLASS()
 class ZOMBIELAND_API UVoidUserWidget : public UUserWidget
 {
 	GENERATED_BODY()
+
 	
 };

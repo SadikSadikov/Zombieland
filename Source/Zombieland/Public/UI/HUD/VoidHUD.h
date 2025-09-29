@@ -6,7 +6,7 @@
 #include "GameFramework/HUD.h"
 #include "VoidHUD.generated.h"
 
-class UVoidUserWidget;
+class UVoidPlayerOverlay;
 /**
  * 
  */
@@ -19,15 +19,15 @@ public:
 
 	void InitOverlay();
 
+	UPROPERTY()
+	TObjectPtr<UVoidPlayerOverlay> VoidOverlayWidget;
+
 protected:
 
 private:
 
-	UPROPERTY()
-	TObjectPtr<UVoidUserWidget> VoidOverlayWidget;
-
 	UPROPERTY(EditAnywhere, Category = "Properties")
-	TSubclassOf<UVoidUserWidget> VoidOverlayWidgetClass;
+	TSubclassOf<UVoidPlayerOverlay> VoidOverlayWidgetClass;
 
 	
 	

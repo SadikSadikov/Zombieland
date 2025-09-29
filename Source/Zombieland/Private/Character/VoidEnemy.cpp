@@ -7,7 +7,50 @@
 #include "BehaviorTree/BehaviorTree.h"
 #include "BehaviorTree/BlackboardComponent.h"
 #include "Component/CombatComponent.h"
+#include "Components/WidgetComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
+#include "UI/Widget/VoidHealthBar.h"
+
+AVoidEnemy::AVoidEnemy()
+{
+	Tags.Add(TEXT("Enemy"));
+	
+	bUseControllerRotationPitch = false;
+	bUseControllerRotationRoll = false;
+	bUseControllerRotationYaw = false;
+
+	GetCharacterMovement()->bOrientRotationToMovement = false;
+	GetCharacterMovement()->bUseControllerDesiredRotation = true;
+	GetCharacterMovement()->MaxWalkSpeed = 400.f;
+
+	HealthBar = CreateDefaultSubobject<UWidgetComponent>(TEXT("HealthBar"));
+	HealthBar->SetupAttachment(GetRootComponent());
+	
+}
+
+void AVoidEnemy::BeginPlay()
+{
+	Super::BeginPlay();
+
+	UpdateHealthBar();
+	
+}
+
+void AVoidEnemy::UpdateHealthBar()
+{
+	if (HealthBar)
+	{
+		if (UVoidHealthBar* ProgressBar = Cast<UVoidHealthBar>(HealthBar->GetUserWidgetObject()))
+		{
+			ProgressBar->SetHealthBarPercentage(GetHealth() / GetMaxHealth());
+
+			const FString HealthText = FString::Printf(TEXT("%d/%d"), FMath::CeilToInt(GetHealth()), FMath::CeilToInt(GetMaxHealth()));
+			ProgressBar->SetHealthText(HealthText);
+		}
+	}
+}
+
+
 
 AActor* AVoidEnemy::GetCombatTarget_Implementation()
 {
@@ -25,18 +68,7 @@ void AVoidEnemy::Attack_Implementation()
 	CombatComp->Attack(EAttackType::EAT_Primary);
 }
 
-AVoidEnemy::AVoidEnemy()
-{
-	Tags.Add(TEXT("Enemy"));
-	
-	bUseControllerRotationPitch = false;
-	bUseControllerRotationRoll = false;
-	bUseControllerRotationYaw = false;
 
-	GetCharacterMovement()->bOrientRotationToMovement = false;
-	GetCharacterMovement()->bUseControllerDesiredRotation = true;
-	GetCharacterMovement()->MaxWalkSpeed = 400.f;
-}
 
 void AVoidEnemy::PossessedBy(AController* NewController)
 {
@@ -64,6 +96,17 @@ void AVoidEnemy::ReceiveDamage(const FDamageInfo& DamageType)
 {
 	Super::ReceiveDamage(DamageType);
 
+	if (HealthBar)
+	{
+		if (UVoidHealthBar* ProgressBar = Cast<UVoidHealthBar>(HealthBar->GetUserWidgetObject()))
+		{
+			ProgressBar->SetHealthBarPercentage(GetHealth() / GetMaxHealth());
+
+			const FString HealthText = FString::Printf(TEXT("%d/%d"), FMath::CeilToInt(GetHealth()), FMath::CeilToInt(GetMaxHealth()));
+			ProgressBar->SetHealthText(HealthText);
+		}
+	}
+	
 	
 }
 
@@ -101,3 +144,5 @@ void AVoidEnemy::EndHitReacting()
 		VoidAIController->GetBlackboardComponent()->SetValueAsBool(FName("HitReacting"), IsHitReacting());
 	}
 }
+
+

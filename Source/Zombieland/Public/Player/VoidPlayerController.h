@@ -6,6 +6,7 @@
 #include "GameFramework/PlayerController.h"
 #include "VoidPlayerController.generated.h"
 
+class AVoidHUD;
 /**
  * 
  */
@@ -16,9 +17,16 @@ class ZOMBIELAND_API AVoidPlayerController : public APlayerController
 
 public:
 
+	void SetHUDHealth(float Health, float MaxHealth);
+
 
 protected:
 
 	virtual void BeginPlay() override;
+
+private:
+
+	UPROPERTY()
+	AVoidHUD* VoidHUD;
 	
 };

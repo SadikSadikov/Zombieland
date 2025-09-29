@@ -4,6 +4,7 @@
 #include "Character/VoidCharacter.h"
 #include "EnhancedInputSubsystems.h"
 #include "EnhancedInputComponent.h"
+#include "Component/AttributeComponent.h"
 #include "Component/CombatComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Kismet/GameplayStatics.h"
@@ -41,6 +42,7 @@ void AVoidCharacter::ReceiveDamage(const FDamageInfo& DamageInfo)
 {
 	Super::ReceiveDamage(DamageInfo);
 
+	UpdateHUDHealth();
 	
 }
 
@@ -65,6 +67,7 @@ void AVoidCharacter::InitActorInfo()
 		if (AVoidHUD* VoidHUD = Cast<AVoidHUD>(VoidPlayerController->GetHUD()))
 		{
 			VoidHUD->InitOverlay();
+			UpdateHUDHealth();
 		}
 	}
 	
@@ -84,22 +87,6 @@ void AVoidCharacter::PossessedBy(AController* NewController)
 
 	
 }
-
-void AVoidCharacter::PollInit()
-{
-	
-	if (VoidPlayerController == nullptr)
-	{
-		/*VoidPlayerController = VoidPlayerController == nullptr ? Cast<AVoidPlayerController>(GetController()) : VoidPlayerController;
-		if (VoidPlayerController)
-		{
-			// HUD Releated thinsgs
-		}*/
-	}
-	
-}
-
-
 
 
 void AVoidCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
@@ -249,3 +236,12 @@ void AVoidCharacter::Recharge(const FInputActionValue& Value)
 	}
 	
 }
+
+void AVoidCharacter::UpdateHUDHealth()
+{
+	if (VoidPlayerController && AttributeComponent)
+	{
+		VoidPlayerController->SetHUDHealth(AttributeComponent->GetHealth(), AttributeComponent->GetMaxHealth());
+	}
+}
+
