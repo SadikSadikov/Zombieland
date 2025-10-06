@@ -5,6 +5,7 @@
 
 #include "KismetAnimationLibrary.h"
 #include "Character/VoidCharacter.h"
+#include "Component/CombatComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 
 void UVoidAnimInstance::NativeInitializeAnimation()
@@ -15,6 +16,7 @@ void UVoidAnimInstance::NativeInitializeAnimation()
 	if (VoidPlayer)
 	{
 		VoidMovementComponent = VoidPlayer->GetCharacterMovement();
+		VoidCombatComponent = VoidPlayer->GetCombatComponent();
 	}
 	
 }
@@ -34,7 +36,12 @@ void UVoidAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 		VoidMovementComponent = VoidPlayer->GetCharacterMovement();
 		
 	}
-	if (VoidMovementComponent == nullptr) return;
+
+	if (VoidCombatComponent == nullptr)
+	{ 
+		VoidCombatComponent = VoidPlayer->GetCombatComponent();	
+	}
+	if (VoidCombatComponent == nullptr) return;
 
 	FVector Velocity = VoidMovementComponent->Velocity;
 	Velocity.Z = 0.0f;
@@ -43,4 +50,6 @@ void UVoidAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 	Direction = UKismetAnimationLibrary::CalculateDirection(Velocity, VoidPlayer->GetActorRotation());
 
 	TurningInPlace = VoidPlayer->GetTurningInPlace();
+
+	HoldingWeaponType = VoidCombatComponent->GetEquippedWeaponType();
 }

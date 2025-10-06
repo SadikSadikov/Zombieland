@@ -17,12 +17,18 @@ class ZOMBIELAND_API AVoidMeleeWeapon : public AVoidWeapon
 public:
 
 	AVoidMeleeWeapon();
+	void CreateSphereField(const FVector& TraceHitTarget);
 
 	virtual void PrimaryAttack(const FVector& TraceHitTarget) override;
 
 	virtual void SecondaryAttack(const FVector& TraceHitTarget) override;
 	
 	virtual bool CanAttack() override;
+
+protected:
+
+	UPROPERTY(EditAnywhere, Category = "Combat")
+	float DamageRadius = 25.f;
 	
 	
 };

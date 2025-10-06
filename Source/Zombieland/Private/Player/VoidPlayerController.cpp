@@ -2,9 +2,6 @@
 
 
 #include "Player/VoidPlayerController.h"
-
-#include "Components/ProgressBar.h"
-#include "Components/TextBlock.h"
 #include "UI/HUD/VoidHUD.h"
 #include "UI/Widget/VoidHealthBar.h"
 #include "UI/Widget/VoidPlayerOverlay.h"

@@ -7,9 +7,11 @@
 #include "GameFramework/Character.h"
 #include "Interaction/CombatInterface.h"
 #include "Interaction/DamageableInterface.h"
+#include "VoidTypes/CharacterClass.h"
 #include "VoidTypes/CombatState.h"
 #include "VoidTypes/WeaponTypes.h"
 #include "VoidCharacterBase.generated.h"
+
 class UAttributeComponent;
 class UCombatComponent;
 
@@ -40,15 +42,19 @@ public:
 
 	virtual  void PostInitializeComponents() override;
 
-	void PlayAttackMontage(const EWeaponType WeaponType, EAttackType AttackType);
+	void PlayAttackMontage(const EWeaponType WeaponType, EAttackType AttackType, float& MontageLength,  FName Section = FName("Default"));
 
 	void PlayRechargeMontage();
+
+	void PlaySwapWeaponMontage();
 
 	// This function needs to be called in AnimNotify
 	UFUNCTION(BlueprintCallable)
 	virtual void EndHitReacting();
 
 	FOnMontageIsInterruptedSignature OnMontageIsInterruptedDelegate;
+
+	virtual void DisableMovement(bool bDisabled);
 
 protected:
 	
@@ -75,12 +81,16 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Combat|Animation")
 	TObjectPtr<UAnimMontage> HitReactMontage;
 
+	UPROPERTY(EditDefaultsOnly, Category = "Combat|Animation")
+	TObjectPtr<UAnimMontage> SwapWeaponMontage;
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	UCombatComponent* CombatComp;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	UAttributeComponent* AttributeComponent;
 
+	/* In Player HitTarget is Mouse Loc but in Enemy is Player Loc*/
 	FVector HitTarget = FVector::ZeroVector;
 
 	// Hit Flash
@@ -104,9 +114,8 @@ protected:
 
 	UPROPERTY(EditAnywhere, Category = "Combat|HitFlash")
 	float HitFlashPlayRate = 5.f;
-
-	UPROPERTY(EditAnywhere, Category = "Movemenet")
-    	float BaseWalkSpeed = 600.f;
+	
+	float BaseWalkSpeed = 0.f;
 
 
 
@@ -114,6 +123,9 @@ protected:
 
 	UPROPERTY(EditAnywhere, Category = "Combat|Death")
 	FVector DeathImpulse;
+
+	UPROPERTY(EditAnywhere)
+	ECharacterClass CharacterClass = ECharacterClass::ECC_Warrior;
 
 private:
 
@@ -136,6 +148,7 @@ public:
 	FORCEINLINE const FVector& GetHitTarget() const { return HitTarget; }
 	FORCEINLINE bool IsHitReacting() const { return bHitReacting; }
 	FORCEINLINE bool IsDead() const { return bDead; }
+
 	
 	
 

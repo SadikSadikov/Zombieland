@@ -39,7 +39,7 @@ void AVoidCharacterBase::BeginPlay()
 {
 	Super::BeginPlay();
 
-	GetCharacterMovement()->MaxWalkSpeed = BaseWalkSpeed;
+	BaseWalkSpeed = GetCharacterMovement()->MaxWalkSpeed;
 
 	CreateHitFlashDynamicMaterial();
 	
@@ -104,17 +104,28 @@ void AVoidCharacterBase::PostInitializeComponents()
 	}
 }
 
-void AVoidCharacterBase::PlayAttackMontage(const EWeaponType WeaponType, EAttackType AttackType)
+void AVoidCharacterBase::PlayAttackMontage(const EWeaponType WeaponType, EAttackType AttackType,float& MontageLength, const FName Section)
 {
 	
 	if (WeaponMontages.IsEmpty() || !WeaponMontages.Contains(WeaponType)) return;
 
 	if (UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance())
 	{
-		AnimInstance->Montage_Play(WeaponMontages[WeaponType]);
-		const FName Section = AttackType == EAttackType::EAT_Primary ? FName("Primary") : FName("Secondary");
+		MontageLength = AnimInstance->Montage_Play(WeaponMontages[WeaponType]);
+
+		if (Section != NAME_None && Section != FName("Default"))
+		{
+			int32 FoundIndex = WeaponMontages[WeaponType]->GetSectionIndex(Section);
+			if (FoundIndex != INDEX_NONE)
+			{
+				MontageLength = WeaponMontages[WeaponType]->GetSectionLength(FoundIndex) / WeaponMontages[WeaponType]->RateScale;
+
+				AnimInstance->Montage_JumpToSection(Section, WeaponMontages[WeaponType]);
+			}
+			
+			
+		}
 		
-		AnimInstance->Montage_JumpToSection(Section, WeaponMontages[WeaponType]);
 	}
 }
 
@@ -130,7 +141,17 @@ void AVoidCharacterBase::PlayRechargeMontage()
 	}
 }
 
-
+void AVoidCharacterBase::PlaySwapWeaponMontage()
+{
+	
+	if (SwapWeaponMontage)
+	{
+		if (UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance())
+		{
+			AnimInstance->Montage_Play(SwapWeaponMontage);
+		}
+	}
+}
 
 
 void AVoidCharacterBase::ReceiveDamage(const FDamageInfo& DamageType)
@@ -203,6 +224,11 @@ void AVoidCharacterBase::MontageIsInterrupted(UAnimMontage* Montage, bool bInter
 		OnMontageIsInterruptedDelegate.Broadcast(CombatComp->GetCombatState());
 		
 	}
+}
+
+
+void AVoidCharacterBase::DisableMovement(bool bDisabled)
+{
 }
 
 void AVoidCharacterBase::PlayHitReactMontage()

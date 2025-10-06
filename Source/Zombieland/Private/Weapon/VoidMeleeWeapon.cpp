@@ -3,6 +3,7 @@
 
 #include "Weapon/VoidMeleeWeapon.h"
 
+#include "Engine/StaticMeshSocket.h"
 #include "Interaction/DamageableInterface.h"
 #include "Kismet/KismetSystemLibrary.h"
 
@@ -10,17 +11,14 @@ AVoidMeleeWeapon::AVoidMeleeWeapon()
 {
 }
 
-void AVoidMeleeWeapon::PrimaryAttack(const FVector& TraceHitTarget)
+void AVoidMeleeWeapon::CreateSphereField(const FVector& TraceHitTarget)
 {
-	Super::PrimaryAttack(TraceHitTarget);
-
 	FName TargetTag = GetOwner()->ActorHasTag(FName("Player")) ? FName("Enemy") : FName("Player");
 	ETraceTypeQuery TraceChanel = UEngineTypes::ConvertToTraceType(ECC_Visibility);
 	TArray<FHitResult> Hits;
-
-	// TODO:: Later remove DrawDebugTrace
-	UKismetSystemLibrary::SphereTraceMulti(this, TraceHitTarget, TraceHitTarget, 25.f, TraceChanel,
-		false, TArray<AActor*>(), EDrawDebugTrace::None, Hits, true);
+	
+	UKismetSystemLibrary::SphereTraceMulti(this, TraceHitTarget, TraceHitTarget, DamageRadius, TraceChanel,
+	                                       false, TArray<AActor*>(), EDrawDebugTrace::ForDuration, Hits, true);
 
 	for (const FHitResult& Hit : Hits)
 	{
@@ -36,8 +34,29 @@ void AVoidMeleeWeapon::PrimaryAttack(const FVector& TraceHitTarget)
 			}
 		}
 	}
+}
 
-	GEngine->AddOnScreenDebugMessage(-1, 2.F, FColor::Black, TEXT("Primary Attack"));
+void AVoidMeleeWeapon::PrimaryAttack(const FVector& TraceHitTarget)
+{
+	Super::PrimaryAttack(TraceHitTarget);
+	
+	// When WeaponMesh is set and Have TipSocket
+	if (const UStaticMeshSocket* MeshSocket = GetWeaponMesh()->GetSocketByName(TipSocketName))
+	{
+		FTransform SocketTransform;
+		MeshSocket->GetSocketTransform(SocketTransform, GetWeaponMesh());
+
+		CreateSphereField(SocketTransform.GetLocation());
+	}
+	// If you do not have Socket And Mesh Use TraceHitTarget for Sphere Center Loc
+	else
+	{
+		CreateSphereField(TraceHitTarget);
+	}
+	
+
+	
+	
 }
 
 void AVoidMeleeWeapon::SecondaryAttack(const FVector& TraceHitTarget)

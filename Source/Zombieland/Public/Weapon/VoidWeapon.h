@@ -40,14 +40,28 @@ protected:
 	
 	virtual void BeginPlay() override;
 
+	/* You need take into account the Montage Length*/
 	UPROPERTY(EditAnywhere, Category = "Combat")
-	float AttackDelay = 0.5f;
+	float AttackTimerDelay = 0.5f;
 
 	UPROPERTY(EditAnywhere, Category = "Combat")
 	EWeaponType WeaponType = EWeaponType::EWT_Unarmed;
 
 	UPROPERTY(EditAnywhere, Category = "Combat")
 	float Damage = 5.f;
+
+	UPROPERTY(EditAnywhere, Category = "Combat")
+	bool bCanCombo = false;
+
+	UPROPERTY(EditAnywhere, Category = "Combat")
+	int32 ComboCount = 3;
+
+	/* This value is used to add on top of AttackTimerDelay */
+	UPROPERTY(EditAnywhere, Category = "Combat")
+	float ComboTimerDelay = 1.f;
+
+	UPROPERTY(EditAnywhere, Category = "Combat")
+	FName TipSocketName = FName("TipSocket");
 
 private:
 
@@ -60,7 +74,10 @@ public:
 
 	FORCEINLINE EWeaponType GetWeaponType() const { return WeaponType; }
 	FORCEINLINE UStaticMeshComponent* GetWeaponMesh() { return WeaponMesh; }
-	FORCEINLINE float GetAttackDelay() const { return AttackDelay; }
+	FORCEINLINE float GetAttackDelay() const { return AttackTimerDelay; }
+	FORCEINLINE bool IsCanCombo() const { return bCanCombo; }
+	FORCEINLINE int32 GetComboCount() const { return ComboCount; }
+	FORCEINLINE float GetComboTimer() const { return ComboTimerDelay; }
 
 
 

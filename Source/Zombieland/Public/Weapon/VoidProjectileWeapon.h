@@ -52,9 +52,6 @@ protected:
 	virtual bool IsFull();
 
 private:
-	
-	UPROPERTY(EditAnywhere, Category = "Combat")
-	FName TipSocketName;
 
 	UPROPERTY(EditAnywhere, Category = "Combat")
 	TSubclassOf<AVoidProjectile> ProjectileClass;

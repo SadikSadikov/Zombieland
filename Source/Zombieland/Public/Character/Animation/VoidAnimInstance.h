@@ -7,6 +7,8 @@
 #include "VoidTypes/TurningInPlace.h"
 #include "VoidAnimInstance.generated.h"
 
+class UCombatComponent;
+enum class EWeaponType : uint8;
 class UCharacterMovementComponent;
 class AVoidCharacter;
 
@@ -30,6 +32,9 @@ private:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Character", meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<UCharacterMovementComponent> VoidMovementComponent;
 
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Character", meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<UCombatComponent> VoidCombatComponent;
+
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Movement", meta = (AllowPrivateAccess = "true"))
 	float Speed;
 
@@ -38,5 +43,8 @@ private:
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Movement", meta = (AllowPrivateAccess = "true"))
 	ETurningInPlace TurningInPlace;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Weapon", meta = (AllowPrivateAccess = "true"))
+	EWeaponType HoldingWeaponType;
 	
 };

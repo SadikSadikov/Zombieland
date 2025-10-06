@@ -31,6 +31,8 @@ public:
 
 	virtual void PossessedBy(AController* NewController) override;
 
+	virtual void DisableMovement(bool bDisabled) override;
+
 protected:
 	virtual void BeginPlay() override;
 
@@ -97,6 +99,9 @@ private:
 	UPROPERTY(EditDefaultsOnly, Category = "Input")
 	TObjectPtr<UInputAction> RechargeAction;
 
+	UPROPERTY(EditDefaultsOnly, Category = "Input")
+	TObjectPtr<UInputAction> SwapWeaponAction;
+
 	void Move(const FInputActionValue& Value);
 
 	void FirstAttack(const FInputActionValue& Value);
@@ -104,6 +109,8 @@ private:
 	void SecondAttack(const FInputActionValue& Value);
 
 	void Recharge(const FInputActionValue& Value);
+
+	void SwapWeapon(const FInputActionValue& Value);
 
 	// end Input
 

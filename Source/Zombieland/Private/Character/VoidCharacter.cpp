@@ -88,6 +88,18 @@ void AVoidCharacter::PossessedBy(AController* NewController)
 	
 }
 
+void AVoidCharacter::DisableMovement(bool bDisabled)
+{
+	if (bDisabled)
+	{
+		DisableInput(VoidPlayerController);
+	}
+	else
+	{
+		EnableInput(VoidPlayerController);
+	}
+}
+
 
 void AVoidCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
@@ -99,6 +111,7 @@ void AVoidCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompo
 		EnhancedInputComponent->BindAction(FirstAttackAction, ETriggerEvent::Started, this, &AVoidCharacter::FirstAttack);
 		EnhancedInputComponent->BindAction(SecondAttackAction, ETriggerEvent::Started, this, &AVoidCharacter::SecondAttack);
 		EnhancedInputComponent->BindAction(RechargeAction, ETriggerEvent::Started, this, &AVoidCharacter::Recharge);
+		EnhancedInputComponent->BindAction(SwapWeaponAction, ETriggerEvent::Started, this, &AVoidCharacter::SwapWeapon);
 	}
 }
 
@@ -235,6 +248,14 @@ void AVoidCharacter::Recharge(const FInputActionValue& Value)
 		CombatComp->Recharge();
 	}
 	
+}
+
+void AVoidCharacter::SwapWeapon(const FInputActionValue& Value)
+{
+	if (CheckValidCombatInput())
+	{
+		CombatComp->SwapWeapon();
+	}
 }
 
 void AVoidCharacter::UpdateHUDHealth()

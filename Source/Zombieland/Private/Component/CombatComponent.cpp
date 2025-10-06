@@ -60,7 +60,27 @@ void UCombatComponent::Attack(EAttackType AttackType)
 		}
 		
 		CombatState = ECombatState::ECS_Attacking;
-		CharacterOwner->PlayAttackMontage(EquippedWeapon->GetWeaponType(), AttackType);
+
+		FName SectionName = FName("Default");
+		if (EquippedWeapon->IsCanCombo())
+		{
+			if (CurrentComboCount > EquippedWeapon->GetComboCount())
+			{
+				ComboTimerFinished();
+			}
+			
+			SectionName = FName(*FString::Printf(TEXT("Attack%d"),CurrentComboCount));
+			
+			CurrentComboCount++;
+			
+			
+		
+		}
+
+		CharacterOwner->DisableMovement(true);
+		float MontageLength = 0.f;
+		CharacterOwner->PlayAttackMontage(EquippedWeapon->GetWeaponType(), AttackType, MontageLength, SectionName);
+		StartAttackTimer(MontageLength);
 		
 	}
 }
@@ -84,25 +104,52 @@ void UCombatComponent::AttackImpact(EAttackType AttackType)
 		EquippedWeapon->SecondaryAttack(CharacterOwner->GetHitTarget());
 	}
 
-	StartAttackTimer();
+	CharacterOwner->DisableMovement(false);
+	
+
 }
 
-void UCombatComponent::StartAttackTimer()
+void UCombatComponent::StartAttackTimer(float MontageLength)
 {
 	if (CharacterOwner == nullptr || EquippedWeapon == nullptr) return;
 
 	CharacterOwner->GetWorldTimerManager().SetTimer(AttackTimer,
 		this,
 		&UCombatComponent::AttackTimerFinished,
-		EquippedWeapon->GetAttackDelay());
+		MontageLength + EquippedWeapon->GetAttackDelay());
+
+
+	if (EquippedWeapon->IsCanCombo())
+	{
+		StratComboTimer(MontageLength);
+	}
+	
+}
+
+void UCombatComponent::StratComboTimer(float MontageLength)
+{
+	if (CharacterOwner == nullptr || EquippedWeapon == nullptr) return;
+	
+	CharacterOwner->GetWorldTimerManager().SetTimer(ComboTimer,
+		this,
+		&UCombatComponent::ComboTimerFinished,
+		MontageLength+ EquippedWeapon->GetAttackDelay() + FMath::Abs(EquippedWeapon->GetComboTimer()));
 }
 
 void UCombatComponent::AttackTimerFinished()
 {
 	if (EquippedWeapon == nullptr) return;
+	
 	CombatState = ECombatState::ECS_Unoccupied;
 
+
 	RechargeEmptyWeapon();
+}
+
+void UCombatComponent::ComboTimerFinished()
+{
+	if (EquippedWeapon == nullptr) return;
+	CurrentComboCount = 1;
 }
 
 void UCombatComponent::RechargeEmptyWeapon()
@@ -120,6 +167,45 @@ void UCombatComponent::Recharge()
 		CombatState = ECombatState::ECS_Recharging;
 		CharacterOwner->PlayRechargeMontage();
 	}
+}
+
+bool UCombatComponent::CanSwap()
+{
+	bool bCheckValid = CharacterOwner &&
+		EquippedWeapon &&
+			SecondaryWeapon &&
+				CombatState == ECombatState::ECS_Unoccupied;
+	
+	return bCheckValid;
+}
+
+void UCombatComponent::SwapWeapon()
+{
+	if (CanSwap())
+	{
+		CombatState = ECombatState::ECS_SwappingWeapons;
+		CharacterOwner->PlaySwapWeaponMontage();
+	}
+	
+}
+
+void UCombatComponent::SwapWeaponFinished()
+{
+	
+	CombatState = ECombatState::ECS_Unoccupied;
+	RechargeEmptyWeapon();
+	
+}
+
+void UCombatComponent::SwapBegin()
+{
+	AVoidWeapon* TempWeapon = EquippedWeapon;
+	EquippedWeapon = SecondaryWeapon;
+	SecondaryWeapon = TempWeapon;
+
+	AttachWeaponToRightHand(EquippedWeapon);
+	AttachWeaponToBackpack(SecondaryWeapon);
+	
 }
 
 void UCombatComponent::RechargeFinished()
@@ -148,13 +234,46 @@ void UCombatComponent::EquipSecondaryWeapon(AVoidWeapon* WeaponToEquip)
 {
 	SecondaryWeapon = WeaponToEquip;
 	SecondaryWeapon->SetOwner(GetOwner());
+	AttachWeaponToBackpack(SecondaryWeapon);
 }
 
 void UCombatComponent::AttachWeaponToRightHand(AActor* WeaponToAttach)
 {
 	if (CharacterOwner == nullptr || CharacterOwner->GetMesh() == nullptr || WeaponToAttach == nullptr ) return;
 
-	if (const USkeletalMeshSocket* MeshSocket = CharacterOwner->GetMesh()->GetSocketByName(FName("RightHandSocket")))
+	// TODO:: Change this later
+	FName SocketName = FName("RightHandSocket");
+	if (EquippedWeapon->GetWeaponType() == EWeaponType::EWT_Gun)
+	{
+		SocketName = FName("RightHandGunSocket");
+	}
+	else if (EquippedWeapon->GetWeaponType() == EWeaponType::EWT_Sword)
+	{
+		SocketName = FName("RightHandSwordSocket");
+	}
+	
+	if (const USkeletalMeshSocket* MeshSocket = CharacterOwner->GetMesh()->GetSocketByName(SocketName))
+	{
+		MeshSocket->AttachActor(WeaponToAttach, CharacterOwner->GetMesh());
+	}
+}
+
+void UCombatComponent::AttachWeaponToBackpack(AActor* WeaponToAttach)
+{
+	if (CharacterOwner == nullptr || CharacterOwner->GetMesh() == nullptr || WeaponToAttach == nullptr ) return;
+
+	// TODO:: Change this later
+	FName SocketName = FName("BackpackSocket");
+	if (SecondaryWeapon->GetWeaponType() == EWeaponType::EWT_Gun)
+	{
+		SocketName = FName("BackpackGunSocket");
+	}
+	else if (SecondaryWeapon->GetWeaponType() == EWeaponType::EWT_Sword)
+	{
+		SocketName = FName("BackpackSwordSocket");
+	}
+	
+	if (const USkeletalMeshSocket* MeshSocket = CharacterOwner->GetMesh()->GetSocketByName(SocketName))
 	{
 		MeshSocket->AttachActor(WeaponToAttach, CharacterOwner->GetMesh());
 	}
@@ -171,13 +290,22 @@ void UCombatComponent::SpawnDefaultWeapon()
 		}
 	
 	}
+
+	if (GetWorld() && SecondaryWeaponClass)
+	{
+		if (AVoidWeapon* Weapon = GetWorld()->SpawnActor<AVoidWeapon>(SecondaryWeaponClass))
+		{
+			EquipSecondaryWeapon(Weapon);
+		}
+	}
 }
 
 void UCombatComponent::MontageIsInterrupted(ECombatState CurrentCombatState)
 {
 	if (CurrentCombatState == ECombatState::ECS_Attacking)
 	{
-		StartAttackTimer();
+		//TODO:: Fix this 
+		StartAttackTimer(2.f);
 	}
 	else if (CurrentCombatState == ECombatState::ECS_Recharging)
 	{
@@ -185,9 +313,19 @@ void UCombatComponent::MontageIsInterrupted(ECombatState CurrentCombatState)
 	}
 	else if (CurrentCombatState == ECombatState::ECS_SwappingWeapons)
 	{
-		//TODO:: Write logic for SwappingWeapon when montage is interrupted 
+		SwapWeaponFinished();
 	}
 	
+}
+
+EWeaponType UCombatComponent::GetEquippedWeaponType() const
+{
+	if (EquippedWeapon)
+	{
+		return EquippedWeapon->GetWeaponType();
+	}
+
+	return EWeaponType::EWT_Max;
 }
 
 

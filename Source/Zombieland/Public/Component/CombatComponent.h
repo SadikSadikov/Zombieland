@@ -37,6 +37,18 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 	void Recharge();
+	bool CanSwap();
+
+	UFUNCTION(BlueprintCallable)
+	void SwapWeapon();
+
+	/* This function is called in AnimNotify to Swap Weapon */
+	UFUNCTION(BlueprintCallable)
+	void SwapWeaponFinished();
+
+	/* This function is called in AnimNotify to Swap Weapon */
+	UFUNCTION(BlueprintCallable)
+	void SwapBegin();
 	
 
 protected:
@@ -47,11 +59,17 @@ protected:
 
 	bool CanAttack();
 
-	void StartAttackTimer();
+	void StartAttackTimer(float MontageLength);
+
+	void StratComboTimer(float MontageLength);
 
 	void AttackTimerFinished();
 
+	void ComboTimerFinished();
+
 	FTimerHandle AttackTimer;
+
+	FTimerHandle ComboTimer;
 
 	// Recharge
 	
@@ -76,6 +94,9 @@ private:
 	UPROPERTY(EditDefaultsOnly)
 	TSubclassOf<AVoidWeapon> DefaultWeaponClass;
 
+	UPROPERTY(EditDefaultsOnly)
+	TSubclassOf<AVoidWeapon> SecondaryWeaponClass;
+
 	FVector HitTarget = FVector::ZeroVector;
 
 	ECombatState CombatState = ECombatState::ECS_Unoccupied;
@@ -86,10 +107,15 @@ private:
 
 	void AttachWeaponToRightHand(AActor* WeaponToAttach);
 
+	void AttachWeaponToBackpack(AActor* WeaponToAttach);
+
 	void SpawnDefaultWeapon();
 
 	UFUNCTION()
 	void MontageIsInterrupted(ECombatState CurrentCombatState);
+	
+	int32 CurrentComboCount = 1;
+
 
 	
 public:
@@ -98,6 +124,7 @@ public:
 	FORCEINLINE void SetCombatState(const ECombatState InCombatState) { CombatState = InCombatState; }
 	FORCEINLINE AVoidCharacterBase* GetCharacterOwner() { return CharacterOwner; }
 	FORCEINLINE void SetCharacterOwner(AVoidCharacterBase* InCharacterOwner) { CharacterOwner = InCharacterOwner; }
+	EWeaponType GetEquippedWeaponType() const ;
 
 
 
