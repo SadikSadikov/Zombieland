@@ -6,6 +6,7 @@
 #include "Weapon/VoidWeapon.h"
 #include "VoidMeleeWeapon.generated.h"
 
+class UBoxComponent;
 /**
  * 
  */
@@ -17,6 +18,7 @@ class ZOMBIELAND_API AVoidMeleeWeapon : public AVoidWeapon
 public:
 
 	AVoidMeleeWeapon();
+	
 	void CreateSphereField(const FVector& TraceHitTarget);
 
 	virtual void PrimaryAttack(const FVector& TraceHitTarget) override;
@@ -27,8 +29,15 @@ public:
 
 protected:
 
+	virtual void BeginPlay() override;
+
 	UPROPERTY(EditAnywhere, Category = "Combat")
 	float DamageRadius = 25.f;
+
+private:
+
+	UPROPERTY(EditAnywhere, Category = "Combat|Effects")
+	TObjectPtr<USoundBase> ImpactSound;
 	
 	
 };

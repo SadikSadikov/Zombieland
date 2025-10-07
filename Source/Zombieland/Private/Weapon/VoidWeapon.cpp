@@ -3,8 +3,6 @@
 
 #include "Weapon/VoidWeapon.h"
 
-#include "Interaction/CombatInterface.h"
-
 AVoidWeapon::AVoidWeapon()
 {
 	PrimaryActorTick.bCanEverTick = false;

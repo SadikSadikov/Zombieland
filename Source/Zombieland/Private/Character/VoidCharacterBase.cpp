@@ -2,10 +2,13 @@
 
 
 #include "Character/VoidCharacterBase.h"
+
+#include "NiagaraFunctionLibrary.h"
 #include "Component/AttributeComponent.h"
 #include "Component/CombatComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
+#include "Kismet/GameplayStatics.h"
 
 
 // TODO:: Clear all the bind delegates (They in most cases are handled it's self) 
@@ -101,6 +104,7 @@ void AVoidCharacterBase::PostInitializeComponents()
 	if (CombatComp)
 	{
 		CombatComp->SetCharacterOwner(this);
+		CombatComp->OnCombatStateChangedDelegate.AddDynamic(this, &AVoidCharacterBase::OnCombatStateChanged);
 	}
 }
 
@@ -158,6 +162,16 @@ void AVoidCharacterBase::ReceiveDamage(const FDamageInfo& DamageType)
 {
 	HitFlash();
 	PlayHitReactMontage();
+
+	if (ImpactCharacterEffect)
+	{
+		UNiagaraFunctionLibrary::SpawnSystemAtLocation(GetWorld(), ImpactCharacterEffect, GetActorLocation());
+	}
+
+	if (ImpactCharacterSound)
+	{
+		UGameplayStatics::PlaySoundAtLocation(this, ImpactCharacterSound, GetActorLocation());
+	}
 	
 }
 
@@ -246,6 +260,10 @@ void AVoidCharacterBase::PlayHitReactMontage()
 }
 
 void AVoidCharacterBase::InitActorInfo()
+{
+}
+
+void AVoidCharacterBase::OnCombatStateChanged(ECombatState NewState)
 {
 }
 

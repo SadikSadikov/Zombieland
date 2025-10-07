@@ -10,6 +10,8 @@
 
 class AVoidCharacterBase;
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnCombatStateChangedSignature, ECombatState, NewState);
+
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class ZOMBIELAND_API UCombatComponent : public UActorComponent
 {
@@ -49,6 +51,9 @@ public:
 	/* This function is called in AnimNotify to Swap Weapon */
 	UFUNCTION(BlueprintCallable)
 	void SwapBegin();
+
+	UPROPERTY(BlueprintAssignable)
+	FOnCombatStateChangedSignature OnCombatStateChangedDelegate;
 	
 
 protected:
@@ -113,8 +118,12 @@ private:
 
 	UFUNCTION()
 	void MontageIsInterrupted(ECombatState CurrentCombatState);
+
+	void ClearAttackData();
 	
 	int32 CurrentComboCount = 1;
+
+	float CurrentMontageLength = 0.f;
 
 
 	
@@ -130,6 +139,7 @@ public:
 
 		
 };
+
 
 
 

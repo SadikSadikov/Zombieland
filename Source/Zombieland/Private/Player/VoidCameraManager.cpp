@@ -6,8 +6,15 @@
 
 AVoidCameraManager::AVoidCameraManager()
 {
-	//bIsOrthographic = true;
-	//DefaultOrthoWidth = 3000.f;
+	bIsOrthographic = true;
+	DefaultOrthoWidth = 3000.f;
+}
+
+void AVoidCameraManager::BeginPlay()
+{
+	Super::BeginPlay();
+	
+	
 }
 
 void AVoidCameraManager::UpdateViewTarget(FTViewTarget& OutVT, float DeltaTime)

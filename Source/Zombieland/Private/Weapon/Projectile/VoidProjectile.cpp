@@ -74,18 +74,6 @@ void AVoidProjectile::OnHit(UPrimitiveComponent* OverlappedComponent, AActor* Ot
 void AVoidProjectile::Destroyed()
 {
 	Super::Destroyed();
-
-	//TODO:: Make choicer for other actor if is Character make impact sound and effect for character , for Environment same and for other types etc.... 
-	
-	if (ImpactCharacter && OtherActorTag == FName("Character"))
-	{
-		//UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), ImpactCharacterParticle, GetActorTransform());
-		UNiagaraFunctionLibrary::SpawnSystemAtLocation(GetWorld(), ImpactCharacter, GetActorLocation());
-	}
-	else if (ImpactEnvironmentParticle)
-	{
-		UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), ImpactEnvironmentParticle, GetActorTransform());
-	}
 	
 	if (ImpactSound)
 	{

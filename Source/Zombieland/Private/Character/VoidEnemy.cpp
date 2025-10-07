@@ -112,6 +112,9 @@ void AVoidEnemy::ReceiveDamage(const FDamageInfo& DamageType)
 
 void AVoidEnemy::OnDeath()
 {
+
+	Super::OnDeath();
+	
 	SetLifeSpan(LifeSpan);
 
 	if (VoidAIController)
@@ -119,7 +122,7 @@ void AVoidEnemy::OnDeath()
 		VoidAIController->GetBlackboardComponent()->SetValueAsBool(FName("IsDead"), IsDead());
 	}
 	
-	Super::OnDeath();
+	
 	
 }
 
@@ -131,6 +134,14 @@ void AVoidEnemy::PlayHitReactMontage()
 	if (VoidAIController)
 	{
 		VoidAIController->GetBlackboardComponent()->SetValueAsBool(FName("HitReacting"), IsHitReacting());
+	}
+}
+
+void AVoidEnemy::OnCombatStateChanged(ECombatState NewState)
+{
+	if (VoidAIController)
+	{
+		VoidAIController->GetBlackboardComponent()->SetValueAsEnum(FName("CombatState"), static_cast<uint8>(NewState));
 	}
 }
 

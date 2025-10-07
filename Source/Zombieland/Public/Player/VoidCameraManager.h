@@ -19,12 +19,14 @@ public:
 	AVoidCameraManager();
 
 protected:
-
+	
+	virtual void BeginPlay() override;
 	virtual void UpdateViewTarget(FTViewTarget& OutVT, float DeltaTime) override;
 
 private:
 
 	UPROPERTY(EditDefaultsOnly, Category = "Camera Properties")
 	FVector CameraLocOffset = FVector(-1200.f, 0.f, 1200);
+	
 	
 };

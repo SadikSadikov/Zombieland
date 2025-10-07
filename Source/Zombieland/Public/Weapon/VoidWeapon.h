@@ -50,17 +50,21 @@ protected:
 	UPROPERTY(EditAnywhere, Category = "Combat")
 	float Damage = 5.f;
 
+	/* If you enable bCanCombo you need to Add more Sequences into Montage and rename Sections like Attack1,2,3...  */
 	UPROPERTY(EditAnywhere, Category = "Combat")
 	bool bCanCombo = false;
 
-	UPROPERTY(EditAnywhere, Category = "Combat")
+	UPROPERTY(EditAnywhere, Category = "Combat", meta = (EditCondition = "bCanCombo"))
 	int32 ComboCount = 3;
 
 	/* This value is used to add on top of AttackTimerDelay */
-	UPROPERTY(EditAnywhere, Category = "Combat")
+	UPROPERTY(EditAnywhere, Category = "Combat", meta = (EditCondition = "bCanCombo"))
 	float ComboTimerDelay = 1.f;
 
 	UPROPERTY(EditAnywhere, Category = "Combat")
+	bool bUseTipSocket = false;
+	
+	UPROPERTY(EditAnywhere, Category = "Combat", meta = (EditCondition = "bUseTipSocket"))
 	FName TipSocketName = FName("TipSocket");
 
 private:

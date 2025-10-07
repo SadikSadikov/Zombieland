@@ -1,6 +1,6 @@
 ﻿#pragma once
 
-UENUM(BlueprintType)
+UENUM(BlueprintType, BlueprintType)
 enum class ECharacterClass  : uint8
 {
 	ECC_Warrior UMETA(DisplayName = "Warrior"),

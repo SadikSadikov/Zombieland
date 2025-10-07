@@ -1,6 +1,6 @@
 ﻿#pragma once
 
-UENUM(Blueprintable)
+UENUM(Blueprintable, BlueprintType)
 enum class ECombatState : uint8
 {
 	ECS_Unoccupied UMETA(DisplayName = "Unoccupied"),

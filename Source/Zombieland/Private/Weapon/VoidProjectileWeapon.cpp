@@ -7,6 +7,11 @@
 #include "Weapon/Projectile/VoidProjectile.h"
 
 
+AVoidProjectileWeapon::AVoidProjectileWeapon()
+{
+	bUseTipSocket = true;
+}
+
 void AVoidProjectileWeapon::BeginPlay()
 {
 	Super::BeginPlay();
@@ -25,15 +30,6 @@ void AVoidProjectileWeapon::PrimaryAttack(const FVector& TraceHitTarget)
 	{
 		FTransform SocketTransform;
 		MeshSocket->GetSocketTransform(SocketTransform, GetWeaponMesh());
-
-		if (MuzzleFlash)
-		{
-			UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), MuzzleFlash, SocketTransform);
-		}
-		if (FireSound)
-		{
-			UGameplayStatics::SpawnSoundAtLocation(this, FireSound, SocketTransform.GetLocation());
-		}
 
 		FVector ToTarget = TraceHitTarget - SocketTransform.GetLocation();
 		FRotator TargetRotation = ToTarget.Rotation();

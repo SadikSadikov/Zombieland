@@ -23,6 +23,9 @@ void UCombatComponent::BeginPlay()
 	}
 
 	SpawnDefaultWeapon();
+
+	CombatState = ECombatState::ECS_Unoccupied;
+	OnCombatStateChangedDelegate.Broadcast(CombatState);
 	
 	
 }
@@ -60,27 +63,21 @@ void UCombatComponent::Attack(EAttackType AttackType)
 		}
 		
 		CombatState = ECombatState::ECS_Attacking;
+		OnCombatStateChangedDelegate.Broadcast(CombatState);
 
 		FName SectionName = FName("Default");
 		if (EquippedWeapon->IsCanCombo())
 		{
-			if (CurrentComboCount > EquippedWeapon->GetComboCount())
-			{
-				ComboTimerFinished();
-			}
 			
 			SectionName = FName(*FString::Printf(TEXT("Attack%d"),CurrentComboCount));
 			
 			CurrentComboCount++;
 			
-			
-		
 		}
 
 		CharacterOwner->DisableMovement(true);
-		float MontageLength = 0.f;
-		CharacterOwner->PlayAttackMontage(EquippedWeapon->GetWeaponType(), AttackType, MontageLength, SectionName);
-		StartAttackTimer(MontageLength);
+		CharacterOwner->PlayAttackMontage(EquippedWeapon->GetWeaponType(), AttackType, CurrentMontageLength, SectionName);
+		StartAttackTimer(CurrentMontageLength);
 		
 	}
 }
@@ -139,17 +136,43 @@ void UCombatComponent::StratComboTimer(float MontageLength)
 void UCombatComponent::AttackTimerFinished()
 {
 	if (EquippedWeapon == nullptr) return;
+
+	if (EquippedWeapon->IsCanCombo() && CurrentComboCount > EquippedWeapon->GetComboCount())
+	{
+		FTimerHandle TimerHandle;
+		GetWorld()->GetTimerManager().SetTimer(TimerHandle, FTimerDelegate::CreateLambda([this]()
+		{
+			ComboTimerFinished();
+			ClearAttackData();
+		
+		}), EquippedWeapon->GetAttackDelay() / 2.f, false);
+	}
+	else
+	{
+		ClearAttackData();
+	}
 	
+	
+	
+}
+
+void UCombatComponent::ClearAttackData()
+{
+	CurrentMontageLength = 0.f;
 	CombatState = ECombatState::ECS_Unoccupied;
-
-
+	OnCombatStateChangedDelegate.Broadcast(CombatState);
 	RechargeEmptyWeapon();
 }
+
 
 void UCombatComponent::ComboTimerFinished()
 {
 	if (EquippedWeapon == nullptr) return;
+
 	CurrentComboCount = 1;
+
+
+	
 }
 
 void UCombatComponent::RechargeEmptyWeapon()
@@ -165,6 +188,7 @@ void UCombatComponent::Recharge()
 	if (CanRecharge())
 	{
 		CombatState = ECombatState::ECS_Recharging;
+		OnCombatStateChangedDelegate.Broadcast(CombatState);
 		CharacterOwner->PlayRechargeMontage();
 	}
 }
@@ -184,6 +208,7 @@ void UCombatComponent::SwapWeapon()
 	if (CanSwap())
 	{
 		CombatState = ECombatState::ECS_SwappingWeapons;
+		OnCombatStateChangedDelegate.Broadcast(CombatState);
 		CharacterOwner->PlaySwapWeaponMontage();
 	}
 	
@@ -193,6 +218,7 @@ void UCombatComponent::SwapWeaponFinished()
 {
 	
 	CombatState = ECombatState::ECS_Unoccupied;
+	OnCombatStateChangedDelegate.Broadcast(CombatState);
 	RechargeEmptyWeapon();
 	
 }
@@ -215,6 +241,7 @@ void UCombatComponent::RechargeFinished()
 		EquippedWeapon->Recharge();
 	}
 	CombatState = ECombatState::ECS_Unoccupied;
+	OnCombatStateChangedDelegate.Broadcast(CombatState);
 }
 
 bool UCombatComponent::CanRecharge()
@@ -304,8 +331,8 @@ void UCombatComponent::MontageIsInterrupted(ECombatState CurrentCombatState)
 {
 	if (CurrentCombatState == ECombatState::ECS_Attacking)
 	{
-		//TODO:: Fix this 
-		StartAttackTimer(2.f);
+		StartAttackTimer(CurrentMontageLength);
+		CharacterOwner->DisableMovement(false);
 	}
 	else if (CurrentCombatState == ECombatState::ECS_Recharging)
 	{

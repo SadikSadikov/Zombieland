@@ -48,6 +48,8 @@ protected:
 
 	virtual void PlayHitReactMontage() override;
 
+	virtual void OnCombatStateChanged(ECombatState NewState) override;
+
 	UPROPERTY(BlueprintReadWrite, Category = "Combat")
 	TObjectPtr<AActor> CombatTarget;
 

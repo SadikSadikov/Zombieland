@@ -12,6 +12,7 @@
 #include "VoidTypes/WeaponTypes.h"
 #include "VoidCharacterBase.generated.h"
 
+class UNiagaraSystem;
 class UAttributeComponent;
 class UCombatComponent;
 
@@ -71,6 +72,9 @@ protected:
 	virtual void PlayHitReactMontage();
 
 	virtual void InitActorInfo();
+
+	UFUNCTION()
+	virtual void OnCombatStateChanged(ECombatState NewState);
 
 	UPROPERTY(EditDefaultsOnly, Category = "Combat|Animation")
 	TMap<EWeaponType, UAnimMontage*> WeaponMontages;
@@ -140,6 +144,12 @@ private:
 	bool bHitReacting = false;
 
 	bool bDead = false;
+
+	UPROPERTY(EditAnywhere, Category = "Combat|Effect")
+	TObjectPtr<UNiagaraSystem> ImpactCharacterEffect;
+
+	UPROPERTY(EditAnywhere, Category = "Combat|Effects")
+	TObjectPtr<USoundBase> ImpactCharacterSound;
 
 public:
 
