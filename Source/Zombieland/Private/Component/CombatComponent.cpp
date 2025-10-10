@@ -75,8 +75,9 @@ void UCombatComponent::Attack(EAttackType AttackType)
 			
 		}
 
+		CurrentAttackType = AttackType;
 		CharacterOwner->DisableMovement(true);
-		CharacterOwner->PlayAttackMontage(EquippedWeapon->GetWeaponType(), AttackType, CurrentMontageLength, SectionName);
+		CharacterOwner->PlayAttackMontage(EquippedWeapon->GetWeaponType(),CurrentMontageLength, AttackType, SectionName);
 		StartAttackTimer(CurrentMontageLength);
 		
 	}
@@ -90,13 +91,13 @@ bool UCombatComponent::CanAttack()
 	return EquippedWeapon->CanAttack() && CombatState == ECombatState::ECS_Unoccupied;
 }
 
-void UCombatComponent::AttackImpact(EAttackType AttackType)
+void UCombatComponent::AttackImpact()
 {
-	if (AttackType == EAttackType::EAT_Primary)
+	if (CurrentAttackType == EAttackType::EAT_Primary)
 	{
 		EquippedWeapon->PrimaryAttack(CharacterOwner->GetHitTarget());
 	}
-	else if (AttackType == EAttackType::EAT_Secondary)
+	else if (CurrentAttackType == EAttackType::EAT_Secondary)
 	{
 		EquippedWeapon->SecondaryAttack(CharacterOwner->GetHitTarget());
 	}
@@ -113,7 +114,7 @@ void UCombatComponent::StartAttackTimer(float MontageLength)
 	CharacterOwner->GetWorldTimerManager().SetTimer(AttackTimer,
 		this,
 		&UCombatComponent::AttackTimerFinished,
-		MontageLength + EquippedWeapon->GetAttackDelay());
+		MontageLength + EquippedWeapon->GetAttackDelay(CurrentAttackType));
 
 
 	if (EquippedWeapon->IsCanCombo())
@@ -130,7 +131,7 @@ void UCombatComponent::StratComboTimer(float MontageLength)
 	CharacterOwner->GetWorldTimerManager().SetTimer(ComboTimer,
 		this,
 		&UCombatComponent::ComboTimerFinished,
-		MontageLength+ EquippedWeapon->GetAttackDelay() + FMath::Abs(EquippedWeapon->GetComboTimer()));
+		MontageLength+ EquippedWeapon->GetAttackDelay(CurrentAttackType) + FMath::Abs(EquippedWeapon->GetComboTimer()));
 }
 
 void UCombatComponent::AttackTimerFinished()
@@ -145,7 +146,7 @@ void UCombatComponent::AttackTimerFinished()
 			ComboTimerFinished();
 			ClearAttackData();
 		
-		}), EquippedWeapon->GetAttackDelay() / 2.f, false);
+		}), EquippedWeapon->GetAttackDelay(CurrentAttackType) / 2.f, false);
 	}
 	else
 	{
@@ -253,6 +254,7 @@ void UCombatComponent::EquipPrimaryWeapon(AVoidWeapon* WeaponToEquip)
 {
 	EquippedWeapon = WeaponToEquip;
 	EquippedWeapon->SetOwner(GetOwner());
+	EquippedWeapon->SetInstigator(Cast<APawn>(GetOwner()));
 	AttachWeaponToRightHand(EquippedWeapon);
 	
 }
@@ -261,6 +263,7 @@ void UCombatComponent::EquipSecondaryWeapon(AVoidWeapon* WeaponToEquip)
 {
 	SecondaryWeapon = WeaponToEquip;
 	SecondaryWeapon->SetOwner(GetOwner());
+	SecondaryWeapon->SetInstigator(Cast<APawn>(GetOwner()));
 	AttachWeaponToBackpack(SecondaryWeapon);
 }
 

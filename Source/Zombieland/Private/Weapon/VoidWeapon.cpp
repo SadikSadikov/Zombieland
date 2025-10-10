@@ -26,6 +26,16 @@ void AVoidWeapon::BeginPlay()
 	
 }
 
+float AVoidWeapon::GetAttackDelay(EAttackType InAttackType) const
+{
+	if (InAttackType == EAttackType::EAT_Primary)
+	{
+		return PrimaryAttackTimerDelay;
+	}
+	
+	return SecondaryAttackTimerDelay;
+}
+
 void AVoidWeapon::PrimaryAttack(const FVector& TraceHitTarget)
 {
 	

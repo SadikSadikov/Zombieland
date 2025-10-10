@@ -28,7 +28,7 @@ public:
 
 	/* This function is called in AnimNotify to Spawn a Projectile or Field for Collision */
 	UFUNCTION(BlueprintCallable)
-	void AttackImpact(EAttackType AttackType);
+	void AttackImpact();
 
 	/* This function is called in AnimNotify to Reload Gun or Recharge Sword */
 	UFUNCTION(BlueprintCallable)
@@ -124,6 +124,8 @@ private:
 	int32 CurrentComboCount = 1;
 
 	float CurrentMontageLength = 0.f;
+
+	EAttackType CurrentAttackType = EAttackType::EAT_Primary;
 
 
 	

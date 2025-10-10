@@ -19,9 +19,13 @@ void AVoidCameraManager::BeginPlay()
 
 void AVoidCameraManager::UpdateViewTarget(FTViewTarget& OutVT, float DeltaTime)
 {
+	Super::UpdateViewTarget(OutVT, DeltaTime);
+	
 	FVector ActorLocation = OutVT.Target->GetActorLocation();
 
 	FVector CalcLocation = ActorLocation + CameraLocOffset;
 	OutVT.POV.Location = CalcLocation;
 	OutVT.POV.Rotation = UKismetMathLibrary::FindLookAtRotation(CalcLocation, ActorLocation);
+
+	
 }

@@ -108,23 +108,53 @@ void AVoidCharacterBase::PostInitializeComponents()
 	}
 }
 
-void AVoidCharacterBase::PlayAttackMontage(const EWeaponType WeaponType, EAttackType AttackType,float& MontageLength, const FName Section)
+void AVoidCharacterBase::PlayAttackMontage(const EWeaponType WeaponType, float& MontageLength, EAttackType InAttackType, const FName Section)
 {
+
+	// TODO:: Improve this change spageti code
 	
 	if (WeaponMontages.IsEmpty() || !WeaponMontages.Contains(WeaponType)) return;
 
 	if (UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance())
 	{
-		MontageLength = AnimInstance->Montage_Play(WeaponMontages[WeaponType]);
+		if (InAttackType == EAttackType::EAT_Primary)
+		{
+			MontageLength = AnimInstance->Montage_Play(WeaponMontages[WeaponType].PrimaryAttackMontage) / WeaponMontages[WeaponType].PrimaryAttackMontage->RateScale;
+		}
+		else
+		{
+			MontageLength = AnimInstance->Montage_Play(WeaponMontages[WeaponType].SecondaryAttackMontage) / WeaponMontages[WeaponType].SecondaryAttackMontage->RateScale;
+
+		}
+		
 
 		if (Section != NAME_None && Section != FName("Default"))
 		{
-			int32 FoundIndex = WeaponMontages[WeaponType]->GetSectionIndex(Section);
-			if (FoundIndex != INDEX_NONE)
+			int32 FoundIndex = -1.f;
+			if (InAttackType == EAttackType::EAT_Primary)
 			{
-				MontageLength = WeaponMontages[WeaponType]->GetSectionLength(FoundIndex) / WeaponMontages[WeaponType]->RateScale;
+				FoundIndex = WeaponMontages[WeaponType].PrimaryAttackMontage->GetSectionIndex(Section);
+			}
+			else
+			{
+				FoundIndex = WeaponMontages[WeaponType].SecondaryAttackMontage->GetSectionIndex(Section);
+			}
+			
+			if (FoundIndex != INDEX_NONE && FoundIndex != -1)
+			{
 
-				AnimInstance->Montage_JumpToSection(Section, WeaponMontages[WeaponType]);
+				if (InAttackType == EAttackType::EAT_Primary)
+				{
+					MontageLength = WeaponMontages[WeaponType].PrimaryAttackMontage->GetSectionLength(FoundIndex) / WeaponMontages[WeaponType].PrimaryAttackMontage->RateScale;
+
+					AnimInstance->Montage_JumpToSection(Section, WeaponMontages[WeaponType].PrimaryAttackMontage);
+				}
+				else
+				{
+					MontageLength = WeaponMontages[WeaponType].SecondaryAttackMontage->GetSectionLength(FoundIndex) / WeaponMontages[WeaponType].SecondaryAttackMontage->RateScale;
+					AnimInstance->Montage_JumpToSection(Section, WeaponMontages[WeaponType].SecondaryAttackMontage);
+				}
+				
 			}
 			
 			

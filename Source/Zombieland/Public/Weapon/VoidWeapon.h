@@ -42,7 +42,11 @@ protected:
 
 	/* You need take into account the Montage Length*/
 	UPROPERTY(EditAnywhere, Category = "Combat")
-	float AttackTimerDelay = 0.5f;
+	float PrimaryAttackTimerDelay = 0.5f;
+
+	/* You need take into account the Montage Length*/
+	UPROPERTY(EditAnywhere, Category = "Combat")
+	float SecondaryAttackTimerDelay = 0.5f;
 
 	UPROPERTY(EditAnywhere, Category = "Combat")
 	EWeaponType WeaponType = EWeaponType::EWT_Unarmed;
@@ -78,7 +82,7 @@ public:
 
 	FORCEINLINE EWeaponType GetWeaponType() const { return WeaponType; }
 	FORCEINLINE UStaticMeshComponent* GetWeaponMesh() { return WeaponMesh; }
-	FORCEINLINE float GetAttackDelay() const { return AttackTimerDelay; }
+	float GetAttackDelay(EAttackType InAttackType) const;
 	FORCEINLINE bool IsCanCombo() const { return bCanCombo; }
 	FORCEINLINE int32 GetComboCount() const { return ComboCount; }
 	FORCEINLINE float GetComboTimer() const { return ComboTimerDelay; }

@@ -2,8 +2,6 @@
 
 
 #include "Weapon/VoidMeleeWeapon.h"
-
-#include "Components/BoxComponent.h"
 #include "Engine/StaticMeshSocket.h"
 #include "Interaction/DamageableInterface.h"
 #include "Kismet/GameplayStatics.h"
@@ -14,13 +12,13 @@ AVoidMeleeWeapon::AVoidMeleeWeapon()
 
 }
 
-void AVoidMeleeWeapon::CreateSphereField(const FVector& TraceHitTarget)
+void AVoidMeleeWeapon::CreateSphereField(const FVector& TraceHitTarget, float Radius)
 {
 	FName TargetTag = GetOwner()->ActorHasTag(FName("Player")) ? FName("Enemy") : FName("Player");
 	ETraceTypeQuery TraceChanel = UEngineTypes::ConvertToTraceType(ECC_Visibility);
 	TArray<FHitResult> Hits;
 	
-	UKismetSystemLibrary::SphereTraceMulti(this, TraceHitTarget, TraceHitTarget, DamageRadius, TraceChanel,
+	UKismetSystemLibrary::SphereTraceMulti(this, TraceHitTarget, TraceHitTarget, Radius, TraceChanel,
 	                                       false, TArray<AActor*>(), EDrawDebugTrace::None, Hits, true);
 
 	for (const FHitResult& Hit : Hits)
@@ -60,14 +58,14 @@ void AVoidMeleeWeapon::PrimaryAttack(const FVector& TraceHitTarget)
 			FTransform SocketTransform;
 			MeshSocket->GetSocketTransform(SocketTransform, GetWeaponMesh());
 
-			CreateSphereField(SocketTransform.GetLocation());
+			CreateSphereField(SocketTransform.GetLocation(), PrimaryDamageRadius);
 		}
 	}
 	
 	// If you do not have Socket And Mesh Use TraceHitTarget for Sphere Center Loc
 	else
 	{
-		CreateSphereField(TraceHitTarget);
+		CreateSphereField(TraceHitTarget, PrimaryDamageRadius);
 	}
 	
 
@@ -78,6 +76,40 @@ void AVoidMeleeWeapon::PrimaryAttack(const FVector& TraceHitTarget)
 void AVoidMeleeWeapon::SecondaryAttack(const FVector& TraceHitTarget)
 {
 	Super::SecondaryAttack(TraceHitTarget);
+
+	float RandValue = FMath::RandRange(0.f,1.f);
+
+	if (RandValue <= CameraShakePercentage / 100.f)
+	{
+		if (GetInstigator() && CameraShakeClass && bUseCameraShake)
+		{
+			if (APlayerController* PlayerController = Cast<APlayerController>(GetInstigator()->GetController()))
+			{
+				if (PlayerController->PlayerCameraManager)
+				{
+					PlayerController->PlayerCameraManager->StartCameraShake(CameraShakeClass);
+				}
+			}
+		}
+	}
+	
+	// When WeaponMesh is set and Have TipSocket
+	if (bUseTipSocket)
+	{
+		if (const UStaticMeshSocket* MeshSocket = GetWeaponMesh()->GetSocketByName(TipSocketName))
+		{
+			FTransform SocketTransform;
+			MeshSocket->GetSocketTransform(SocketTransform, GetWeaponMesh());
+
+			CreateSphereField(SocketTransform.GetLocation(), SecondaryDamageRadius);
+		}
+	}
+	
+	// If you do not have Socket And Mesh Use TraceHitTarget for Sphere Center Loc
+	else
+	{
+		CreateSphereField(TraceHitTarget, SecondaryDamageRadius);
+	}
 }
 
 bool AVoidMeleeWeapon::CanAttack()

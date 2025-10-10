@@ -43,7 +43,7 @@ public:
 
 	virtual  void PostInitializeComponents() override;
 
-	void PlayAttackMontage(const EWeaponType WeaponType, EAttackType AttackType, float& MontageLength,  FName Section = FName("Default"));
+	void PlayAttackMontage(const EWeaponType WeaponType, float& MontageLength,EAttackType InAttackType,  FName Section = FName("Default"));
 
 	void PlayRechargeMontage();
 
@@ -77,7 +77,7 @@ protected:
 	virtual void OnCombatStateChanged(ECombatState NewState);
 
 	UPROPERTY(EditDefaultsOnly, Category = "Combat|Animation")
-	TMap<EWeaponType, UAnimMontage*> WeaponMontages;
+	TMap<EWeaponType, FAttackState> WeaponMontages;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Combat|Animation")
 	TObjectPtr<UAnimMontage> RechargeMontage;
