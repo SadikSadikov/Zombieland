@@ -31,6 +31,8 @@ public:
 protected:
 
 	virtual void BeginPlay() override;
+	
+	void SpawnProjectile(const FVector& TraceHitTarget, const TSubclassOf<AVoidProjectile>& ProjectileClass);
 
 	void UpdateAmmoValues();
 
@@ -56,7 +58,10 @@ protected:
 private:
 
 	UPROPERTY(EditAnywhere, Category = "Combat")
-	TSubclassOf<AVoidProjectile> ProjectileClass;
+	TSubclassOf<AVoidProjectile> BulletProjectileClass;
+
+	UPROPERTY(EditAnywhere, Category = "Combat")
+	TSubclassOf<AVoidProjectile> RocketProjectileClass;
 
 	
 	

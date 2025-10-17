@@ -11,6 +11,15 @@ class UProjectileMovementComponent;
 class UNiagaraSystem;
 class UNiagaraComponent;
 
+UENUM(BlueprintType)
+enum class EProjectileType : uint8
+{
+
+	EPT_Bullet UMETA(DisplayName = "Bullet"),
+	/* Deals damage with radial falloff*/
+	EPT_Rocket UMETA(DisplayName = "Rocket")
+};
+
 UCLASS()
 class ZOMBIELAND_API AVoidProjectile : public AActor
 {
@@ -37,6 +46,9 @@ private:
 	void StartDestroyTimer();
 
 	void DestroyTimerFinished();
+
+	UPROPERTY(EditAnywhere, Category = "Properties")
+	EProjectileType ProjectileType;
 	
 	UPROPERTY(VisibleAnywhere)
 	TObjectPtr<UProjectileMovementComponent> MovementComponent;
@@ -68,11 +80,12 @@ private:
 
 	UPROPERTY(EditAnywhere, Category = "Properties|Effects")
 	TObjectPtr<UNiagaraComponent> TrailSystemComponent;
-
+	
 	UPROPERTY(EditAnywhere, Category = "Properties|Effects")
 	TObjectPtr<USoundBase> ImpactSound;
 
-	FName OtherActorTag = FName("Environment");
+	UPROPERTY(EditAnywhere, Category = "Properties|Effects")
+	TObjectPtr<UParticleSystem> ImpactParticle;
 
 public:	
 

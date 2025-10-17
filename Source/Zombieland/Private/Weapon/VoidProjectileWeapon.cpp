@@ -20,12 +20,11 @@ void AVoidProjectileWeapon::BeginPlay()
 	Ammo = FMath::Clamp(Ammo, 0, MagCapacity);
 }
 
-void AVoidProjectileWeapon::PrimaryAttack(const FVector& TraceHitTarget)
+void AVoidProjectileWeapon::SpawnProjectile(const FVector& TraceHitTarget, const TSubclassOf<AVoidProjectile>& ProjectileClass)
 {
-	Super::PrimaryAttack(TraceHitTarget);
+	if (ProjectileClass == nullptr) return;
 
 	
-
 	if (const UStaticMeshSocket* MeshSocket = GetWeaponMesh()->GetSocketByName(TipSocketName))
 	{
 		FTransform SocketTransform;
@@ -33,6 +32,7 @@ void AVoidProjectileWeapon::PrimaryAttack(const FVector& TraceHitTarget)
 
 		FVector ToTarget = TraceHitTarget - SocketTransform.GetLocation();
 		FRotator TargetRotation = ToTarget.Rotation();
+		TargetRotation.Pitch = 0.f;
 		
 		APawn* InstigatorPawn = Cast<APawn>(GetOwner());
 		
@@ -40,21 +40,29 @@ void AVoidProjectileWeapon::PrimaryAttack(const FVector& TraceHitTarget)
 		SpawnParameters.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn;
 		SpawnParameters.Owner = this;
 		SpawnParameters.Instigator = InstigatorPawn;
+
+		FVector SpawnLocation = SocketTransform.GetLocation();
 		
-		GetWorld()->SpawnActor<AVoidProjectile>(ProjectileClass, SocketTransform.GetLocation(), TargetRotation, SpawnParameters);
+		GetWorld()->SpawnActor<AVoidProjectile>(ProjectileClass, SpawnLocation, TargetRotation, SpawnParameters);
 		
 		SpendRound();
-
-		GEngine->AddOnScreenDebugMessage(1, 2.f, FColor::Green, FString::Printf(TEXT("Ammo - %d"), Ammo));
+		
 		
 	}
+}
+
+void AVoidProjectileWeapon::PrimaryAttack(const FVector& TraceHitTarget)
+{
+	Super::PrimaryAttack(TraceHitTarget);
+	
+	SpawnProjectile(TraceHitTarget, BulletProjectileClass);
 }
 
 void AVoidProjectileWeapon::SecondaryAttack(const FVector& TraceHitTarget)
 {
 	Super::SecondaryAttack(TraceHitTarget);
 
-	// TODO:: Implement Secondary Attack
+	SpawnProjectile(TraceHitTarget, RocketProjectileClass);
 }
 
 bool AVoidProjectileWeapon::CanAttack()

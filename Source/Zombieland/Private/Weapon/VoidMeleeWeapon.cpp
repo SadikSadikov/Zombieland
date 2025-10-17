@@ -27,8 +27,11 @@ void AVoidMeleeWeapon::CreateSphereField(const FVector& TraceHitTarget, float Ra
 		{
 			if (IDamageableInterface* DamagableActor = Cast<IDamageableInterface>(Hit.GetActor()))
 			{
+
+				FDamageProps DamageProps = GetDamage();
+				
 				FDamageInfo DamageInfo;
-				DamageInfo.Amount = GetDamage();
+				DamageInfo.Amount = DamageProps.BaseDamage;
 				DamageInfo.DamageCauser = Hit.GetActor();
 				
 				DamagableActor->TakeDamage(DamageInfo);

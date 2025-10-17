@@ -15,9 +15,16 @@ AVoidWeapon::AVoidWeapon()
 	
 }
 
-float AVoidWeapon::GetDamage()
+FDamageProps AVoidWeapon::GetDamage()
 {
-	return Damage;
+
+	FDamageProps DamageProps;
+	DamageProps.BaseDamage = Damage;
+	DamageProps.MinDamage = MinDamage;
+	DamageProps.InnerRadius = InnerRadius;
+	DamageProps.OuterRadius = OuterRadius;
+	
+	return DamageProps;
 }
 
 void AVoidWeapon::BeginPlay()

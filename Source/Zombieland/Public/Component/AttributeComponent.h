@@ -19,7 +19,6 @@ class ZOMBIELAND_API UAttributeComponent : public UActorComponent
 	GENERATED_BODY()
 
 public:
-	
 	UAttributeComponent();
 
 	UPROPERTY(BlueprintAssignable)

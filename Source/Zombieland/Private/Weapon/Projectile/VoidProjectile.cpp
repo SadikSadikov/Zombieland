@@ -43,6 +43,8 @@ void AVoidProjectile::BeginPlay()
 			EAttachLocation::Type::KeepWorldPosition);
 	}
 
+	SpawnTrailSystem();
+
 	BoxComponent->OnComponentBeginOverlap.AddDynamic(this, &AVoidProjectile::OnHit);
 	
 }
@@ -52,22 +54,102 @@ void AVoidProjectile::OnHit(UPrimitiveComponent* OverlappedComponent, AActor* Ot
 {
 	if (OtherActor == GetInstigator()) return;
 
-	if (IDamageableInterface* Damageable = Cast<IDamageableInterface>(OtherActor))
+
+	if (ProjectileType == EProjectileType::EPT_Bullet)
 	{
-		if (IWeaponInterface* WeaponInterface = Cast<IWeaponInterface>(GetOwner()))
+
+		if (IDamageableInterface* Damageable = Cast<IDamageableInterface>(OtherActor))
 		{
+			if (IWeaponInterface* WeaponInterface = Cast<IWeaponInterface>(GetOwner()))
+			{
+
+				FDamageProps DamageProps = WeaponInterface->GetDamage();
+				
+				FDamageInfo DamageInfo;
+				DamageInfo.Amount = DamageProps.BaseDamage;
+				DamageInfo.DamageCauser = OtherActor;
 			
-			FDamageInfo DamageInfo;
-			DamageInfo.Amount = WeaponInterface->GetDamage();
-			DamageInfo.DamageCauser = OtherActor;
-			
-			Damageable->TakeDamage(DamageInfo);
+				Damageable->TakeDamage(DamageInfo);
+				
+			}
 		}
 		
 	}
+	else if (ProjectileType == EProjectileType::EPT_Rocket)
+	{
+		if (IWeaponInterface* WeaponInterface = Cast<IWeaponInterface>(GetOwner()))
+		{
+			FDamageProps DamageProps = WeaponInterface->GetDamage();
 
-	OtherActorTag = OtherActor->ActorHasTag(FName("Player")) || OtherActor->ActorHasTag(FName("Enemy")) ? FName("Character") : FName("Environment");
-	
+			TSet<AActor*> DamagedActors;
+
+			ETraceTypeQuery DamageQuery = UEngineTypes::ConvertToTraceType(ECC_Pawn);
+			
+			TArray<AActor*> IgnoreActors;
+			IgnoreActors.Add(GetInstigator());
+			IgnoreActors.Add(GetOwner());
+			IgnoreActors.Add(this);
+
+			TArray<FHitResult> InnerHits;
+
+			TArray<FHitResult> OuterHits;
+			
+			UKismetSystemLibrary::SphereTraceMulti(GetWorld(), GetActorLocation(), GetActorLocation(),
+				DamageProps.InnerRadius, DamageQuery, false, IgnoreActors, EDrawDebugTrace::None, InnerHits, true);
+
+			UKismetSystemLibrary::SphereTraceMulti(GetWorld(), GetActorLocation(), GetActorLocation(),
+				DamageProps.OuterRadius, DamageQuery, false, IgnoreActors, EDrawDebugTrace::None, OuterHits, true);
+
+			for (FHitResult HitResult : InnerHits)
+			{
+				if (IDamageableInterface* Damageable = Cast<IDamageableInterface>(HitResult.GetActor()))
+				{
+
+					if (!HitResult.GetActor() || DamagedActors.Contains(HitResult.GetActor()))
+					{
+						continue;
+					}
+					
+					FDamageInfo DamageInfo;
+					DamageInfo.Amount = DamageProps.BaseDamage;
+					DamageInfo.DamageCauser = GetInstigator();
+					
+					Damageable->TakeDamage(DamageInfo);
+					
+					DamagedActors.Add(HitResult.GetActor());
+				}
+			}
+
+			for (FHitResult HitResult : OuterHits)
+			{
+				if (IDamageableInterface* Damageable = Cast<IDamageableInterface>(HitResult.GetActor()))
+				{
+					if (!HitResult.GetActor() || DamagedActors.Contains(HitResult.GetActor()))
+					{
+						continue;
+					}
+					
+					float Alpha  = (GetDistanceTo(HitResult.GetActor()) - DamageProps.InnerRadius) / (DamageProps.OuterRadius - DamageProps.InnerRadius);
+					Alpha = FMath::Clamp(Alpha, 0.0f, 1.0f);
+
+					/* Linear Interp */
+					float DamageCalc = Alpha * DamageProps.MinDamage + (1.f - Alpha) * DamageProps.BaseDamage;
+
+					/* You can use this is exacly same only added DamageFalloff for controlling the curve*/
+					//float DamageCalc = FMath::Lerp(DamageProps.BaseDamage, DamageProps.MinDamage, FMath::Pow(Alpha, DamageFallof));
+					
+					FDamageInfo DamageInfo;
+					DamageInfo.Amount = DamageCalc;
+					DamageInfo.DamageCauser = GetInstigator();
+
+					Damageable->TakeDamage(DamageInfo);
+
+					DamagedActors.Add(HitResult.GetActor());
+				}
+			
+			}
+		}
+	}
 	Destroy();
 }
 
@@ -78,6 +160,10 @@ void AVoidProjectile::Destroyed()
 	if (ImpactSound)
 	{
 		UGameplayStatics::PlaySoundAtLocation(this, ImpactSound, GetActorLocation());
+	}
+	if (ImpactParticle)
+	{
+		UGameplayStatics::SpawnEmitterAtLocation(this, ImpactParticle, GetActorLocation());
 	}
 }
 

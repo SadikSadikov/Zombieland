@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "UObject/Interface.h"
+#include "VoidTypes/DamageInfo.h"
 #include "WeaponInterface.generated.h"
 
 // This class does not need to be modified.
@@ -23,5 +24,5 @@ class ZOMBIELAND_API IWeaponInterface
 	// Add interface functions to this class. This is the class that will be inherited to implement this interface.
 public:
 
-	virtual float GetDamage() = 0;
+	virtual FDamageProps GetDamage() = 0;
 };

@@ -19,7 +19,7 @@ public:
 
 	/* Weapon Interface */
 
-	virtual float GetDamage() override;
+	virtual FDamageProps GetDamage() override;
 
 	/* end Weapon Interface */
 
@@ -51,9 +51,6 @@ protected:
 	UPROPERTY(EditAnywhere, Category = "Combat")
 	EWeaponType WeaponType = EWeaponType::EWT_Unarmed;
 
-	UPROPERTY(EditAnywhere, Category = "Combat")
-	float Damage = 5.f;
-
 	/* If you enable bCanCombo you need to Add more Sequences into Montage and rename Sections like Attack1,2,3...  */
 	UPROPERTY(EditAnywhere, Category = "Combat")
 	bool bCanCombo = false;
@@ -70,6 +67,21 @@ protected:
 	
 	UPROPERTY(EditAnywhere, Category = "Combat", meta = (EditCondition = "bUseTipSocket"))
 	FName TipSocketName = FName("TipSocket");
+
+	UPROPERTY(EditAnywhere, Category = "Combat")
+	float Damage = 5.f;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combat")
+	bool bIsRadialDamage = false;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (EditCondition = bIsRadialDamage), Category = "Combat")
+	float MinDamage = 0.f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (EditCondition = bIsRadialDamage), Category = "Combat")
+	float InnerRadius = 0.f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (EditCondition = bIsRadialDamage), Category = "Combat")
+	float OuterRadius = 0.f;
 
 private:
 
