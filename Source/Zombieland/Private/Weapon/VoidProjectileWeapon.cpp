@@ -44,8 +44,12 @@ void AVoidProjectileWeapon::SpawnProjectile(const FVector& TraceHitTarget, const
 		FVector SpawnLocation = SocketTransform.GetLocation();
 		
 		GetWorld()->SpawnActor<AVoidProjectile>(ProjectileClass, SpawnLocation, TargetRotation, SpawnParameters);
+
+		if (!bUnlimitedAmmo)
+		{
+			SpendRound();
+		}
 		
-		SpendRound();
 		
 		
 	}

@@ -128,9 +128,6 @@ protected:
 	UPROPERTY(EditAnywhere, Category = "Combat|Death")
 	FVector DeathImpulse;
 
-	UPROPERTY(EditAnywhere)
-	ECharacterClass CharacterClass = ECharacterClass::ECC_Warrior;
-
 private:
 
 	void EndHitFlash();

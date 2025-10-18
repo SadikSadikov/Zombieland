@@ -39,12 +39,15 @@ protected:
 	int32 AmountToReload() const;
 
 	UPROPERTY(EditAnywhere, Category = "Combat|Gun")
-	int32 CarriedAmmo = 30;
+	bool bUnlimitedAmmo = false;
 
-	UPROPERTY(EditAnywhere, Category = "Combat|Gun")
+	UPROPERTY(EditAnywhere, Category = "Combat|Gun", meta = (EditCondition = "!bUnlimitedAmmo"))
+	int32 CarriedAmmo = 30;
+	
+	UPROPERTY(EditAnywhere, Category = "Combat|Gun", meta = (EditCondition = "!bUnlimitedAmmo"))
 	int32 Ammo = 10;
 
-	UPROPERTY(EditAnywhere, Category = "Combat|Gun")
+	UPROPERTY(EditAnywhere, Category = "Combat|Gun", meta = (EditCondition = "!bUnlimitedAmmo"))
 	int MagCapacity = 10;
 
 	void SpendRound();

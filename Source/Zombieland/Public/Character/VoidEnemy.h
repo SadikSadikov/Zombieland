@@ -56,6 +56,9 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	TObjectPtr<UWidgetComponent> HealthBar;
 
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Combat")
+	ECharacterClass CharacterClass = ECharacterClass::ECC_Warrior;
+
 	
 
 private:

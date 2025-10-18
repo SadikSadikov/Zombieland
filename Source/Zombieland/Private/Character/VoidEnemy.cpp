@@ -84,6 +84,7 @@ void AVoidEnemy::PossessedBy(AController* NewController)
 			VoidAIController->RunBehaviorTree(BehaviorTree);
 			VoidAIController->GetBlackboardComponent()->SetValueAsBool(FName("IsDead"), IsDead());
 			VoidAIController->GetBlackboardComponent()->SetValueAsBool(FName("HitReacting"), IsHitReacting());
+			VoidAIController->GetBlackboardComponent()->SetValueAsEnum(FName("CharacterClass"), static_cast<uint8>(CharacterClass));
 			
 			
 		}
