@@ -117,11 +117,11 @@ void AVoidCharacterBase::PlayAttackMontage(const EWeaponType WeaponType, float& 
 
 	if (UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance())
 	{
-		if (InAttackType == EAttackType::EAT_Primary)
+		if (InAttackType == EAttackType::EAT_Primary && WeaponMontages[WeaponType].PrimaryAttackMontage)
 		{
 			MontageLength = AnimInstance->Montage_Play(WeaponMontages[WeaponType].PrimaryAttackMontage) / WeaponMontages[WeaponType].PrimaryAttackMontage->RateScale;
 		}
-		else
+		else if (WeaponMontages[WeaponType].SecondaryAttackMontage)
 		{
 			MontageLength = AnimInstance->Montage_Play(WeaponMontages[WeaponType].SecondaryAttackMontage) / WeaponMontages[WeaponType].SecondaryAttackMontage->RateScale;
 
@@ -143,13 +143,13 @@ void AVoidCharacterBase::PlayAttackMontage(const EWeaponType WeaponType, float& 
 			if (FoundIndex != INDEX_NONE && FoundIndex != -1)
 			{
 
-				if (InAttackType == EAttackType::EAT_Primary)
+				if (InAttackType == EAttackType::EAT_Primary && WeaponMontages[WeaponType].PrimaryAttackMontage)
 				{
 					MontageLength = WeaponMontages[WeaponType].PrimaryAttackMontage->GetSectionLength(FoundIndex) / WeaponMontages[WeaponType].PrimaryAttackMontage->RateScale;
 
 					AnimInstance->Montage_JumpToSection(Section, WeaponMontages[WeaponType].PrimaryAttackMontage);
 				}
-				else
+				else if (WeaponMontages[WeaponType].SecondaryAttackMontage)
 				{
 					MontageLength = WeaponMontages[WeaponType].SecondaryAttackMontage->GetSectionLength(FoundIndex) / WeaponMontages[WeaponType].SecondaryAttackMontage->RateScale;
 					AnimInstance->Montage_JumpToSection(Section, WeaponMontages[WeaponType].SecondaryAttackMontage);

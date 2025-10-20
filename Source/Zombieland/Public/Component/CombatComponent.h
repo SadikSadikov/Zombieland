@@ -96,10 +96,10 @@ private:
 	UPROPERTY()
 	TObjectPtr<AVoidCharacterBase> CharacterOwner;
 
-	UPROPERTY(EditDefaultsOnly)
+	UPROPERTY(EditDefaultsOnly, Category = "Combat")
 	TSubclassOf<AVoidWeapon> DefaultWeaponClass;
 
-	UPROPERTY(EditDefaultsOnly)
+	UPROPERTY(EditDefaultsOnly, Category = "Combat")
 	TSubclassOf<AVoidWeapon> SecondaryWeaponClass;
 
 	FVector HitTarget = FVector::ZeroVector;
@@ -126,6 +126,9 @@ private:
 	float CurrentMontageLength = 0.f;
 
 	EAttackType CurrentAttackType = EAttackType::EAT_Primary;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Combat")
+	bool bShouldVisibleSecondaryWeapon = true;
 
 
 	

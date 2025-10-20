@@ -326,6 +326,8 @@ void UCombatComponent::SpawnDefaultWeapon()
 		if (AVoidWeapon* Weapon = GetWorld()->SpawnActor<AVoidWeapon>(SecondaryWeaponClass))
 		{
 			EquipSecondaryWeapon(Weapon);
+			
+			Weapon->SetActorHiddenInGame(!bShouldVisibleSecondaryWeapon);
 		}
 	}
 }

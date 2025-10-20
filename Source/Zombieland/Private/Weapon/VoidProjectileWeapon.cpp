@@ -32,7 +32,7 @@ void AVoidProjectileWeapon::SpawnProjectile(const FVector& TraceHitTarget, const
 
 		FVector ToTarget = TraceHitTarget - SocketTransform.GetLocation();
 		FRotator TargetRotation = ToTarget.Rotation();
-		TargetRotation.Pitch = 0.f;
+		//TargetRotation.Pitch = 0.f;
 		
 		APawn* InstigatorPawn = Cast<APawn>(GetOwner());
 		

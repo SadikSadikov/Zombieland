@@ -130,12 +130,16 @@ void AVoidEnemy::OnDeath()
 void AVoidEnemy::PlayHitReactMontage()
 {
 	Super::PlayHitReactMontage();
-	
-	GetCharacterMovement()->MaxWalkSpeed = 0.f;
-	if (VoidAIController)
+
+	if (HitReactMontage)
 	{
-		VoidAIController->GetBlackboardComponent()->SetValueAsBool(FName("HitReacting"), IsHitReacting());
+		GetCharacterMovement()->MaxWalkSpeed = 0.f;
+		if (VoidAIController)
+		{
+			VoidAIController->GetBlackboardComponent()->SetValueAsBool(FName("HitReacting"), IsHitReacting());
+		}
 	}
+	
 }
 
 void AVoidEnemy::OnCombatStateChanged(ECombatState NewState)

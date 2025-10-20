@@ -51,6 +51,31 @@ void AVoidMeleeWeapon::PrimaryAttack(const FVector& TraceHitTarget)
 {
 	Super::PrimaryAttack(TraceHitTarget);
 
+	float RandValue = FMath::RandRange(0.f,1.f);
+
+	if (RandValue <= CameraShakePercentage / 100.f)
+	{
+		if (CameraShakeClass && bUseCameraShake)
+		{
+			bool bIsPlayedCameraShake = false;
+			if (GetInstigator())
+			{
+				if (APlayerController* PlayerController = Cast<APlayerController>(GetInstigator()->GetController()))
+				{
+					if (PlayerController->PlayerCameraManager)
+					{
+						PlayerController->PlayerCameraManager->StartCameraShake(CameraShakeClass);
+						bIsPlayedCameraShake = true;
+					}
+				}
+			}
+			if (!bIsPlayedCameraShake)
+			{
+				UGameplayStatics::PlayWorldCameraShake(GetWorld(), CameraShakeClass, GetActorLocation(), 100000.f, 200000.f);
+			}
+			
+		}
+	}
 	
 	
 	// When WeaponMesh is set and Have TipSocket
@@ -84,15 +109,25 @@ void AVoidMeleeWeapon::SecondaryAttack(const FVector& TraceHitTarget)
 
 	if (RandValue <= CameraShakePercentage / 100.f)
 	{
-		if (GetInstigator() && CameraShakeClass && bUseCameraShake)
+		if (CameraShakeClass && bUseCameraShake)
 		{
-			if (APlayerController* PlayerController = Cast<APlayerController>(GetInstigator()->GetController()))
+			bool bIsPlayedCameraShake = false;
+			if (GetInstigator())
 			{
-				if (PlayerController->PlayerCameraManager)
+				if (APlayerController* PlayerController = Cast<APlayerController>(GetInstigator()->GetController()))
 				{
-					PlayerController->PlayerCameraManager->StartCameraShake(CameraShakeClass);
+					if (PlayerController->PlayerCameraManager)
+					{
+						PlayerController->PlayerCameraManager->StartCameraShake(CameraShakeClass);
+						bIsPlayedCameraShake = true;
+					}
 				}
 			}
+			if (!bIsPlayedCameraShake)
+			{
+				UGameplayStatics::PlayWorldCameraShake(GetWorld(), CameraShakeClass, GetActorLocation(), 500.f, 1000.f);
+			}
+			
 		}
 	}
 	
